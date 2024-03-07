@@ -1,0 +1,11 @@
+git checkout -b feature/new-feature
+
+git checkout -b bugfix/fix-bug
+
+git checkout -b release/version-1.0
+
+git checkout -b hotfix/urgent-fix
+
+git checkout -b hotfix/urgent-fix
+
+git checkout -b docs/update-readme
