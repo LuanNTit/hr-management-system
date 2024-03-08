@@ -2,8 +2,6 @@ package com.luan.hrmanagementsystem.services;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import com.luan.hrmanagementsystem.models.Employee;
 public interface IEmployeeService {
 	public Employee createEmployee(Employee employee);

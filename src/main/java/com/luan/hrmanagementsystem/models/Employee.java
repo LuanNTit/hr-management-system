@@ -3,7 +3,8 @@ package com.luan.hrmanagementsystem.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Calendar;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
@@ -14,9 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,25 +41,25 @@ public class Employee {
 		generator = "employee_sequence"
 	)
     private Long id;
+//    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     private Date dateOfBirth;
+//    @Column(columnDefinition = "NVARCHAR(255)")
     private String position;
     private double salary;
     
-    @Transient
     private int age;
 
     @PrePersist
     @PreUpdate
     private void calculateAge() {
-    	Calendar currentDate = Calendar.getInstance();
-        Calendar birthDate = Calendar.getInstance();
-        birthDate.setTime(dateOfBirth);
+        LocalDate currentDate = LocalDate.now();
+        LocalDate birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        age = currentDate.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR);
+        age = (int) ChronoUnit.YEARS.between(birthDate, currentDate);
 
         // Kiểm tra xem đã qua ngày sinh nhật chưa để điều chỉnh giá trị age
-        if (currentDate.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
+        if (currentDate.isBefore(birthDate.plusYears(age))) {
             age--;
         }
     }

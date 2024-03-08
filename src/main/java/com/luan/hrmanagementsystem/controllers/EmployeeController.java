@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.luan.hrmanagementsystem.models.Employee;
 import com.luan.hrmanagementsystem.models.ResponseObject;
-import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
 import com.luan.hrmanagementsystem.services.IEmployeeService;
 
 @RestController
@@ -27,36 +26,74 @@ public class EmployeeController {
 	private IEmployeeService employeeService;
 
 	@GetMapping("")
-	public List<Employee> getAllEmployees() {
-		return employeeService.getAllEmployees();
+	public ResponseEntity<ResponseObject> getAllEmployees() {
+		try {
+			List<Employee> employees = employeeService.getAllEmployees();
+			return ResponseEntity.ok(new ResponseObject("ok", "List employees successfully", employees));
+		} catch (Exception exception) {
+			return ResponseEntity.ok(new ResponseObject("failed", exception.getMessage(), new String[] {}));
+		}
 	}
 
 	@GetMapping("/{id}")
-	public Employee getEmployeeById(@PathVariable Long id) {
-		return employeeService.getEmployeeById(id);
+	public ResponseEntity<ResponseObject> getEmployeeById(@PathVariable Long id) {
+		try {
+			Employee employee = employeeService.getEmployeeById(id);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseObject("ok", "Query employee successfully", employee));
+		} catch (Exception exception) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new ResponseObject("failed", exception.getMessage(), ""));
+		}
 	}
 
 	@PostMapping("")
 	public ResponseEntity<ResponseObject> createEmployee(@RequestBody Employee employee) {
-	    try {
-	        Employee savedEmployee = employeeService.createEmployee(employee);
-	        return ResponseEntity.status(HttpStatus.OK)
-	                .body(new ResponseObject("ok", "Employee created successfully", savedEmployee));
-	    } catch (Exception exception) {
-	        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-	                .body(new ResponseObject("error", exception.getMessage(), ""));
-	    }
+		try {
+			Employee savedEmployee = employeeService.createEmployee(employee);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseObject("ok", "Employee created successfully", savedEmployee));
+		} catch (Exception exception) {
+			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+					.body(new ResponseObject("failed", exception.getMessage(), ""));
+		}
 	}
 
-
 	@PutMapping("/{id}")
-	public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
-		employee.setId(id);
-		return employeeService.updateEmployee(id, employee);
+	public ResponseEntity<ResponseObject> updateEmployee(@PathVariable Long id, @RequestBody Employee newEmployee) {
+		try {
+			Employee updateEmployee = employeeService.updateEmployee(id, newEmployee);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseObject("ok", "Update Employee successfully", updateEmployee));
+		} catch (IllegalArgumentException e) {
+			// Xử lý ngoại lệ khi Employee not found with ID
+			if (e.getMessage().contains("Employee not found with ID")) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
+						.body(new ResponseObject("failed", e.getMessage(), ""));
+			}
+			// Xử lý ngoại lệ khi Employee with the same details already exists
+			if (e.getMessage().contains("Employee with the same details already exists")) {
+				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+						.body(new ResponseObject("failed", e.getMessage(), ""));
+			}
+			// Xử lý các trường hợp khác nếu cần
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ResponseObject("failed", "Internal Server Error", ""));
+		} catch (Exception exception2) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new ResponseObject("failed", exception2.getMessage(), ""));
+		}
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteEmployee(@PathVariable Long id) {
-		employeeService.deleteEmployee(id);
+	public ResponseEntity<ResponseObject> deleteEmployee(@PathVariable Long id) {
+		try {
+			employeeService.deleteEmployee(id);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseObject("ok", "Delete product successfully", ""));
+		} catch (Exception exception) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new ResponseObject("failed", exception.getMessage(), ""));
+		}
 	}
 }
