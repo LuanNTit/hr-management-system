@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,19 +28,20 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "employee_table")
 public class Employee {
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)// auto-increment
+    @GeneratedValue(strategy = GenerationType.AUTO)// auto-increment
 	// you can also use "sequence"
-	@SequenceGenerator(
-		name = "employee_sequence",
-		sequenceName = "employee_sequence",
-		allocationSize = 1 //increment by 1
-	)
-	@GeneratedValue(
-		strategy = GenerationType.SEQUENCE,
-		generator = "employee_sequence"
-	)
+//	@SequenceGenerator(
+//		name = "employee_sequence",
+//		sequenceName = "employee_sequence",
+//		allocationSize = 1 //increment by 1
+//	)
+//	@GeneratedValue(
+//		strategy = GenerationType.SEQUENCE,
+//		generator = "employee_sequence"
+//	)
     private Long id;
 //    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
