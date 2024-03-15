@@ -1,6 +1,5 @@
 package com.luan.hrmanagementsystem.models;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,35 +14,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user_table")
-public class User {
+public class MyUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long userId;
-
-    @Column(name = "enabled")
-    private boolean enabled;
-
-    @Column(name = "encrypted_password")
-    private String encryptedPassword;
-
-    @Column(name = "user_name")
     private String userName;
-
-	public User(boolean enabled, String encryptedPassword, String userName) {
+    private String encryptedPassword;
+    private boolean enabled;
+    private String role; //Eg: USER, ADMIN
+	public MyUser(String userName, String encryptedPassword, String role, boolean enabled) {
 		super();
+		this.userName = userName;
+		this.encryptedPassword = encryptedPassword;
+		this.role = role;
 		this.enabled = enabled;
-		this.encryptedPassword = encryptedPassword;
-		this.userName = userName;
 	}
-
-	public User(String userName, String encryptedPassword) {
-		super();
-		this.userName = userName;
-		this.encryptedPassword = encryptedPassword;
-	}
-	
-    // Constructors, getters, and setters
-    
 }

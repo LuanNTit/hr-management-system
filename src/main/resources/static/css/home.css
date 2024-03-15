@@ -1,0 +1,14 @@
+/* home.css */
+body.home {
+    background-color: #f0f0f0; /* Màu nền cho trang chính */
+}
+
+/* home_admin.css */
+body.home_admin {
+    background-color: #b0c4de; /* Màu nền cho trang quản trị viên */
+}
+
+/* home_user.css */
+body.home_user {
+    background-color: #90ee90; /* Màu nền cho trang người dùng */
+}
