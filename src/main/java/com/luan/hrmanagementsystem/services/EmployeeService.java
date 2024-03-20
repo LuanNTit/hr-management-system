@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.luan.hrmanagementsystem.models.Employee;
 import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
+
+import lombok.extern.slf4j.Slf4j;
 @Service
+@Slf4j
 public class EmployeeService implements IEmployeeService {
 
     @Autowired
@@ -23,7 +26,9 @@ public class EmployeeService implements IEmployeeService {
             // Kiểm tra hợp lệ trước khi lưu vào cơ sở dữ liệu
             validateEmployee(employee);
 
-            return employeeRepository.save(employee);
+            Employee saveEmployee = employeeRepository.save(employee);
+            log.info("Employee {} is saved", saveEmployee.getId());
+            return saveEmployee;
         } catch (DataIntegrityViolationException | ConstraintViolationException e) {
             // Xử lý ngoại lệ khi vi phạm ràng buộc cơ sở dữ liệu
             throw new IllegalArgumentException("Duplicate employee details or data integrity violation");

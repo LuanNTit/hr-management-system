@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.luan.hrmanagementsystem.dto.ResponseObject;
 import com.luan.hrmanagementsystem.models.Employee;
-import com.luan.hrmanagementsystem.models.ResponseObject;
 import com.luan.hrmanagementsystem.services.IEmployeeService;
 
 @RestController

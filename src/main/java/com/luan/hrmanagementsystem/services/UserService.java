@@ -9,32 +9,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.luan.hrmanagementsystem.database.Database;
-import com.luan.hrmanagementsystem.models.MyUser;
+import com.luan.hrmanagementsystem.models.User;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 @Service
-public class MyUserDetailService implements IUserService, UserDetailsService {
+public class UserService implements IUserService,  UserDetailsService {
 	private static final Logger logger = LoggerFactory.getLogger(Database.class);
 	@Autowired
 	private UserRepository userRepository;
-	
-	/*
-	 * @Autowired private PasswordEncoder passwordEncoder;
-	 */
 
 	@Override
-	public List<MyUser> getAllUsers() {
+	public List<User> getAllUsers() {
 		try {
-			List<MyUser> users = userRepository.findAll();
+			List<User> users = userRepository.findAll();
 			logger.info("Number of users fetched: {}", users.size());
 			return users;
 		} catch (Exception e) {
@@ -43,9 +37,9 @@ public class MyUserDetailService implements IUserService, UserDetailsService {
 	}
 
 	@Override
-	public MyUser getUserById(Long userId) {
+	public User getUserById(Long userId) {
 		// Kiểm tra xem nhân viên có tồn tại không
-		Optional<MyUser> existingUserOptional = userRepository.findById(userId);
+		Optional<User> existingUserOptional = userRepository.findById(userId);
 		if (existingUserOptional.isPresent()) {
 			return existingUserOptional.orElse(null);
 		} else {
@@ -54,9 +48,9 @@ public class MyUserDetailService implements IUserService, UserDetailsService {
 	}
 
 	@Override
-	public MyUser createUser(MyUser user) {
+	public User createUser(User user) {
 		// Bổ sung logic kiểm tra trước khi lưu người dùng
-		Optional<MyUser> existingUser = userRepository.findByUserName(user.getUserName());
+		Optional<User> existingUser = userRepository.findByUserName(user.getUserName());
 		if (existingUser.isPresent()) {
 			// Xử lý trường hợp trùng tên người dùng (hoặc bất kỳ điều kiện nào khác)
 			throw new IllegalArgumentException("Username already exists: " + user.getUserName());
@@ -68,16 +62,16 @@ public class MyUserDetailService implements IUserService, UserDetailsService {
 		 */
 
 		// Lưu người dùng mới vào cơ sở dữ liệu
-		MyUser savedUser = userRepository.save(user);
+		User savedUser = userRepository.save(user);
 		return savedUser;
 	}
 
 	@Override
-	public MyUser updateUser(Long userId, MyUser updatedUser) {
-		Optional<MyUser> existingUserOptional = userRepository.findById(userId);
+	public User updateUser(Long userId, User updatedUser) {
+		Optional<User> existingUserOptional = userRepository.findById(userId);
 
 		if (existingUserOptional.isPresent()) {
-			MyUser existingUser = existingUserOptional.get();
+			User existingUser = existingUserOptional.get();
 			existingUser.setEnabled(updatedUser.isEnabled());
 			// Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
 			String encodedPassword = BCrypt.hashpw(existingUser.getEncryptedPassword(), BCrypt.gensalt());
@@ -96,23 +90,23 @@ public class MyUserDetailService implements IUserService, UserDetailsService {
 	}
 
 	@Override
-	public List<MyUser> getAllUsers(int page, int size) {
+	public List<User> getAllUsers(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		return userRepository.findAll(pageable).getContent();
 	}
 
 	@Override
-	public List<MyUser> getAllUsers(String sortBy) {
+	public List<User> getAllUsers(String sortBy) {
 		Sort sort = Sort.by(sortBy);
 		return userRepository.findAll(sort);
 	}
-
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<MyUser> user = userRepository.findByUserName(username);
+		Optional<User> user = userRepository.findByUserName(username);
 		if (user.isPresent()) {
 			var userObj = user.get();
-			return User.builder()
+			return org.springframework.security.core.userdetails.User.builder()
 					.username(userObj.getUserName())
 					.password(userObj.getEncryptedPassword())
 					.roles(getRoles(userObj))
@@ -121,7 +115,7 @@ public class MyUserDetailService implements IUserService, UserDetailsService {
 			throw new UsernameNotFoundException(username);
 		}
 	}
-	private String[] getRoles(MyUser user){
+	private String[] getRoles(User user){
 		if (user.getRole() == null) {
 			return new String[] {"USER"};
 		}

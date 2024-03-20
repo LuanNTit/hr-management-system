@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,8 +14,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "user_table")
-public class MyUser {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +25,7 @@ public class MyUser {
     private String encryptedPassword;
     private boolean enabled;
     private String role; //Eg: USER, ADMIN
-	public MyUser(String userName, String encryptedPassword, String role, boolean enabled) {
+	public User(String userName, String encryptedPassword, String role, boolean enabled) {
 		super();
 		this.userName = userName;
 		this.encryptedPassword = encryptedPassword;

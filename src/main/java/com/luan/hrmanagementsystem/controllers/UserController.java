@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.luan.hrmanagementsystem.models.ResponseObject;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
-import com.luan.hrmanagementsystem.models.MyUser;
+import com.luan.hrmanagementsystem.dto.ResponseObject;
+import com.luan.hrmanagementsystem.models.User;
 import com.luan.hrmanagementsystem.services.IUserService;
 
 import java.util.List;
@@ -22,10 +22,26 @@ public class UserController {
     @Autowired
 	private PasswordEncoder passwordEncoder;
 
+    @PostMapping("")
+    public ResponseEntity<ResponseObject> createUser(@RequestBody User user) {
+        try {
+        	user.setEncryptedPassword(passwordEncoder.encode(user.getEncryptedPassword()));
+            User createdUser = userService.createUser(user);
+            return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseObject("ok", "User created successfully", createdUser));
+        } catch (IllegalArgumentException e) {
+        	return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+					.body(new ResponseObject("failed", e.getMessage(), ""));
+        } catch (Exception e) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(new ResponseObject("failed", e.getMessage(), ""));
+        }
+    }
+    
     @GetMapping
     public ResponseEntity<ResponseObject> getAllUsers() {
         try {
-            List<MyUser> users = userService.getAllUsers();
+            List<User> users = userService.getAllUsers();
             return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseObject("ok", "List users successfully", users));
         } catch (Exception e) {
@@ -37,7 +53,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseObject> getUserById(@PathVariable Long userId) {
         try {
-        	MyUser user = userService.getUserById(userId);
+        	User user = userService.getUserById(userId);
         	return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseObject("ok", "Query employee successfully", user));
         } catch (Exception e) {
@@ -46,26 +62,10 @@ public class UserController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<ResponseObject> createUser(@RequestBody MyUser user) {
-        try {
-        	user.setEncryptedPassword(passwordEncoder.encode(user.getEncryptedPassword()));
-            MyUser createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.OK)
-					.body(new ResponseObject("ok", "User created successfully", createdUser));
-        } catch (IllegalArgumentException e) {
-        	return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-					.body(new ResponseObject("failed", e.getMessage(), ""));
-        } catch (Exception e) {
-        	return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(new ResponseObject("failed", e.getMessage(), ""));
-        }
-    }
-
     @PutMapping("/{userId}")
-    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody MyUser updatedUser) {
+    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody User updatedUser) {
         try {
-            MyUser user = userService.updateUser(userId, updatedUser);
+            User user = userService.updateUser(userId, updatedUser);
             return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseObject("ok", "Update Employee successfully", user));
         } catch (IllegalArgumentException e) {
@@ -92,7 +92,7 @@ public class UserController {
     @GetMapping("/paged")
     public ResponseEntity<ResponseObject> getAllUsersPaged(@RequestParam int page, @RequestParam int size) {
         try {
-            List<MyUser> users = userService.getAllUsers(page, size);
+            List<User> users = userService.getAllUsers(page, size);
             return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseObject("ok", "Successfully retrieved paged users", users));
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class UserController {
     @GetMapping("/sorted")
     public ResponseEntity<ResponseObject> getAllUsersSorted(@RequestParam String sortBy) {
         try {
-            List<MyUser> users = userService.getAllUsers(sortBy);
+            List<User> users = userService.getAllUsers(sortBy);
             return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseObject("ok", "Successfully retrieved sorted users", users));
         } catch (Exception e) {
