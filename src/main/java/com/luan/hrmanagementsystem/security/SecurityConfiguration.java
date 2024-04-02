@@ -46,14 +46,14 @@ public class SecurityConfiguration {
 			registry.anyRequest().authenticated();
 		})
 		.userDetailsService(userService)
-		.sessionManagement(session->session
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//		.sessionManagement(session->session
+//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-				/*
-				 * .formLogin(httpSecurityFormLoginConfigurer -> {
-				 * httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
-				 * AuthenticationSuccessHandler()) .permitAll(); })
-				 */
+				
+				  .formLogin(httpSecurityFormLoginConfigurer -> {
+				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
+				  AuthenticationSuccessHandler()) .permitAll(); })
+				 
 		.build();
 	}
 	@Bean

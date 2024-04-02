@@ -27,18 +27,6 @@ public class AuthenticationService {
 	}
 
 	public AuthenticationResponse register(User request) {
-//		User user = new User();
-//		user.setFirstName(request.getFirstName());
-//		user.setLastName(request.getLastName());
-//		user.setUsername(request.getUsername());
-//		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		
-//		user.setRole(request.getRole());
-//		Optional<User> existingUser = repository.findByUserName(request.getUserName());
-//		if (existingUser.isPresent()) {
-//			// Xử lý trường hợp trùng tên người dùng (hoặc bất kỳ điều kiện nào khác)
-//			throw new IllegalArgumentException("Username already exists: " + request.getUserName());
-//		}
 		request.setEnabled(true);
 		request.setEncryptedPassword(passwordEncoder.encode(request.getEncryptedPassword()));
 		User user = repository.save(request);
