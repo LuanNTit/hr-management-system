@@ -2,18 +2,14 @@ package com.luan.hrmanagementsystem.services;
 
 import java.util.List;
 
-import com.luan.hrmanagementsystem.models.Employee;
+import org.springframework.data.domain.Page;
 
-public interface IEmployeeService {
-	public Employee createEmployee(Employee employee);
+import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 
-	public Employee updateEmployee(Long id, Employee employee);
-
-	public void deleteEmployee(Long id);
-
-	public Employee getEmployeeById(Long id);
-
-	public List<Employee> getAllEmployees();
-
-	// Các phương thức khác liên quan đến quản lý nhân sự
+public interface EmployeeService {
+	List<EmployeeDTO> getAllEmployees();
+	EmployeeDTO saveEmployee(EmployeeDTO employee);
+	EmployeeDTO getEmployeeById(long id);
+	void deleteEmployeeById(long id);
+	Page<EmployeeDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
 }

@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Table(name = "user_table")
-public class User {
+@Table(name = "user_db")
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +24,7 @@ public class User {
     private String encryptedPassword;
     private boolean enabled;
     private String role; //Eg: USER, ADMIN
-	public User(String userName, String encryptedPassword, String role, boolean enabled) {
+	public UserEntity(String userName, String encryptedPassword, String role, boolean enabled) {
 		super();
 		this.userName = userName;
 		this.encryptedPassword = encryptedPassword;

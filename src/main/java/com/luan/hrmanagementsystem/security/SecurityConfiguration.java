@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.luan.hrmanagementsystem.filter.JwtAuthenticationFilter;
-import com.luan.hrmanagementsystem.services.UserService;
+import com.luan.hrmanagementsystem.services.UserServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 	@Autowired
-	private final UserService userService;
+	private final UserServiceImpl userService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
@@ -50,9 +50,11 @@ public class SecurityConfiguration {
 //			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				
-				  .formLogin(httpSecurityFormLoginConfigurer -> {
-				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
-				  AuthenticationSuccessHandler()) .permitAll(); })
+				/*
+				 * .formLogin(httpSecurityFormLoginConfigurer -> {
+				 * httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
+				 * AuthenticationSuccessHandler()) .permitAll(); })
+				 */
 				 
 		.build();
 	}

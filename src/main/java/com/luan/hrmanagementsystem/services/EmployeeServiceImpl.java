@@ -2,115 +2,83 @@ package com.luan.hrmanagementsystem.services;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.hibernate.exception.ConstraintViolationException;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.luan.hrmanagementsystem.models.Employee;
+import com.luan.hrmanagementsystem.dto.EmployeeDTO;
+import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
-
-import lombok.extern.slf4j.Slf4j;
 @Service
-@Slf4j
-public class EmployeeService implements IEmployeeService {
+public class EmployeeServiceImpl implements EmployeeService {
+	@Autowired
+	private EmployeeRepository employeeRepository;
+	
+	@Override
+	public List<EmployeeDTO> getAllEmployees() {
+		List<EmployeeEntity> employees = employeeRepository.findAll();
+		return employees.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+	@Override
+	public EmployeeDTO getEmployeeById(long id) {
+		Optional<EmployeeEntity> optional = employeeRepository.findById(id);
+		EmployeeEntity employee = null;
+		if (optional.isPresent()) {
+			employee = optional.get();
+		} else {
+			throw new RuntimeException("Employee not found for id :: " + id);
+		}
+		return convertToDTO(employee);
+	}
 
-    @Override
-    public Employee createEmployee(Employee employee) {
-        try {
-            // Kiểm tra hợp lệ trước khi lưu vào cơ sở dữ liệu
-            validateEmployee(employee);
+	@Override
+	public void deleteEmployeeById(long id) {
+		this.employeeRepository.deleteById(id);
+		
+	}
 
-            Employee saveEmployee = employeeRepository.save(employee);
-            log.info("Employee {} is saved", saveEmployee.getId());
-            return saveEmployee;
-        } catch (DataIntegrityViolationException | ConstraintViolationException e) {
-            // Xử lý ngoại lệ khi vi phạm ràng buộc cơ sở dữ liệu
-            throw new IllegalArgumentException("Duplicate employee details or data integrity violation");
-        } catch (DataAccessException e) {
-            // Xử lý ngoại lệ cơ sở dữ liệu khác
-            throw new RuntimeException("Error while accessing the database", e);
-        }
-    }
+	@Override
+	public Page<EmployeeDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection) {
+		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
+			Sort.by(sortField).descending();
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+        Page<EmployeeEntity> pages = this.employeeRepository.findAll(pageable);
+        List<EmployeeDTO> dtos = pages.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return new PageImpl<>(dtos, pageable, pages.getTotalElements());
+	}
 
-
-    @Override
-    public Employee updateEmployee(Long id, Employee employee) {
-        // Kiểm tra xem nhân viên có tồn tại không
-        Optional<Employee> existingEmployeeOptional = employeeRepository.findById(id);
-        if (existingEmployeeOptional.isPresent()) {
-            Employee existingEmployee = existingEmployeeOptional.get();
-            
-            // kiểm tra thông tin có bị trùng lặp không
-            validateEmployee(employee);
-            
-            // Cập nhật thông tin nhân viên
-            existingEmployee.setName(employee.getName());
-            existingEmployee.setDateOfBirth(employee.getDateOfBirth());
-            existingEmployee.setPosition(employee.getPosition());
-            existingEmployee.setSalary(employee.getSalary());
-            existingEmployee.setAge(employee.getAge());
-            // Cập nhật các trường khác tùy theo yêu cầu
-
-            // Lưu vào cơ sở dữ liệu
-            employeeRepository.save(existingEmployee);
-            return existingEmployee;
-        } else {
-            throw new IllegalArgumentException("Employee not found with ID: " + id);
-        }
-    }
-
-    @Override
-    public void deleteEmployee(Long id) {
-        // Kiểm tra xem nhân viên có tồn tại không
-        Optional<Employee> existingEmployeeOptional = employeeRepository.findById(id);
-        if (existingEmployeeOptional.isPresent()) {
-            // Xóa nhân viên nếu tồn tại
-            employeeRepository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Employee not found with ID: " + id);
-        }
-    }
-
-    @Override
-    public Employee getEmployeeById(Long id) {
-    	// Kiểm tra xem nhân viên có tồn tại không
-        Optional<Employee> existingEmployeeOptional = employeeRepository.findById(id);
-        if (existingEmployeeOptional.isPresent()) {
-        	return existingEmployeeOptional.orElse(null);
-        } else {
-            throw new IllegalArgumentException("Employee not found with ID: " + id);
-        }
-    }
-
-    @Override
-    public List<Employee> getAllEmployees() {
-        try {
-            // Lấy danh sách tất cả nhân viên
-            return employeeRepository.findAll();
-        } catch (DataAccessException e) {
-            // Xử lý ngoại lệ chung của truy xuất cơ sở dữ liệu
-            throw new RuntimeException("Error while accessing the database", e);
-        }
-    }
-
-    private void validateEmployee(Employee employee) {
-        // Tìm tất cả nhân viên có cùng các thuộc tính như employee
-        List<Employee> foundEmployees = employeeRepository.findByName(employee.getName());
-
-     // Kiểm tra tính đồng đạc giữa các nhân viên đã tìm được và employee
-        if (foundEmployees.stream().anyMatch(existingEmployee ->
-                existingEmployee.getName().equals(employee.getName()) &&
-        		existingEmployee.getDateOfBirth().getTime() == employee.getDateOfBirth().getTime()
-                )) {
-            throw new IllegalArgumentException("Employee with the same details already exists");
-        }
-
-    }
-
+	@Override
+	public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
+		EmployeeEntity employeeEntity = new EmployeeEntity();
+		employeeEntity.setId(employeeDTO.getId());
+		employeeEntity.setName(employeeDTO.getName());
+		employeeEntity.setAge(employeeDTO.getAge());
+		employeeEntity.setDateOfBirth(employeeDTO.getDateOfBirth());
+		employeeEntity.setPosition(employeeDTO.getPosition());
+		employeeEntity.setSalary(employeeDTO.getSalary());
+		EmployeeEntity employee = employeeRepository.save(employeeEntity);
+		return convertToDTO(employee);
+	}
+	
+	public EmployeeDTO convertToDTO(EmployeeEntity employeeEntity) {
+		if (employeeEntity == null) {
+			return null;
+		}
+		EmployeeDTO employeeDTO = new EmployeeDTO();
+		employeeDTO.setId(employeeEntity.getId());
+		employeeDTO.setName(employeeEntity.getName());
+		employeeDTO.setDateOfBirth(employeeEntity.getDateOfBirth());
+		employeeDTO.setAge(employeeEntity.getAge());
+		employeeDTO.setPosition(employeeEntity.getPosition());
+		employeeDTO.setSalary(employeeEntity.getSalary());
+		return employeeDTO;
+	}
 }

@@ -3,12 +3,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.luan.hrmanagementsystem.models.User;
+import com.luan.hrmanagementsystem.models.UserEntity;
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	boolean existsByUserName(String userName);
-    // Các phương thức truy vấn đặc biệt có thể được thêm ở đây
-	Optional<User> findByUserName(String userName);
+	Optional<UserEntity> findByUserName(String userName);
 }

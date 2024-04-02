@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.luan.hrmanagementsystem.services.JwtService;
-import com.luan.hrmanagementsystem.services.UserService;
+import com.luan.hrmanagementsystem.services.UserServiceImpl;
 
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
@@ -21,9 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtService jwtService;
-	private final UserService userService;
+	private final UserServiceImpl userService;
 	
-	public JwtAuthenticationFilter(JwtService jwtService, UserService userService) {
+	public JwtAuthenticationFilter(JwtService jwtService, UserServiceImpl userService) {
 		super();
 		this.jwtService = jwtService;
 		this.userService = userService;

@@ -16,39 +16,22 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "employee_table")
-public class Employee {
+@Data
+@Table(name = "employee_db")
+public class EmployeeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)// auto-increment
-	// you can also use "sequence"
-//	@SequenceGenerator(
-//		name = "employee_sequence",
-//		sequenceName = "employee_sequence",
-//		allocationSize = 1 //increment by 1
-//	)
-//	@GeneratedValue(
-//		strategy = GenerationType.SEQUENCE,
-//		generator = "employee_sequence"
-//	)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)// auto-increment
     private Long id;
-//    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     private Date dateOfBirth;
-//    @Column(columnDefinition = "NVARCHAR(255)")
     private String position;
     private double salary;
-    
     private int age;
 
     @PrePersist
@@ -65,7 +48,7 @@ public class Employee {
         }
     }
     
-    public Employee(String name, String dateOfBirth, String position, double salary) {
+    public EmployeeEntity(String name, String dateOfBirth, String position, double salary) {
         this.name = name;
         this.position = position;
         this.salary = salary;
@@ -79,7 +62,7 @@ public class Employee {
         }
     }
 
-    public Employee(Long id, String name, String dateOfBirth, String position, double salary) {
+    public EmployeeEntity(Long id, String name, String dateOfBirth, String position, double salary) {
         this.id = id;
         this.name = name;
         this.position = position;
@@ -94,7 +77,7 @@ public class Employee {
         }
     }
 
-	public Employee(String name, Date dateOfBirth, String position, double salary) {
+	public EmployeeEntity(String name, Date dateOfBirth, String position, double salary) {
 		super();
 		this.name = name;
 		this.dateOfBirth = dateOfBirth;
@@ -110,7 +93,7 @@ public class Employee {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Employee other = (Employee) obj;
+		EmployeeEntity other = (EmployeeEntity) obj;
 		return age == other.age && Objects.equals(dateOfBirth, other.dateOfBirth)
 				&& Objects.equals(name, other.name) && Objects.equals(position, other.position)
 				&& Double.doubleToLongBits(salary) == Double.doubleToLongBits(other.salary);

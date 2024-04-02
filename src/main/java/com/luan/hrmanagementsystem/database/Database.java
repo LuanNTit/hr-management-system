@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.luan.hrmanagementsystem.models.Employee;
+import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
 
 @Configuration

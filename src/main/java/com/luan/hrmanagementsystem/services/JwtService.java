@@ -7,7 +7,7 @@ import javax.crypto.SecretKey;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.luan.hrmanagementsystem.models.User;
+import com.luan.hrmanagementsystem.dto.UserDTO;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -48,7 +48,7 @@ public class JwtService {
 			.getPayload();
 	}
 
-	public String generateToken(User user) {
+	public String generateToken(UserDTO user) {
 		String token = Jwts
 				.builder()
 				.subject(user.getUserName())

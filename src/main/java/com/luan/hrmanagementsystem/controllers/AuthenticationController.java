@@ -6,28 +6,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.luan.hrmanagementsystem.dto.AuthenticationResponse;
-import com.luan.hrmanagementsystem.models.User;
-import com.luan.hrmanagementsystem.services.AuthenticationService;
+import com.luan.hrmanagementsystem.models.UserEntity;
+import com.luan.hrmanagementsystem.services.AuthenticationServiceImpl;
 
 @RestController
 public class AuthenticationController {
-	private AuthenticationService authService;
+	private AuthenticationServiceImpl authService;
 
-	public AuthenticationController(AuthenticationService authService) {
+	public AuthenticationController(AuthenticationServiceImpl authService) {
 		super();
 		this.authService = authService;
 	}
 	
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> register(
-		@RequestBody User request
+		@RequestBody UserEntity request
 	) {
 		return ResponseEntity.ok(authService.register(request));
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthenticationResponse> login(
-		@RequestBody User request
+		@RequestBody UserEntity request
 	) {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
