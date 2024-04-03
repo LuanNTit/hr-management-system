@@ -8,6 +8,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,6 +31,7 @@ public class EmployeeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)// auto-increment
     private Long id;
     private String name;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
     private String position;
     private double salary;

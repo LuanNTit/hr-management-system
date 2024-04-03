@@ -36,28 +36,24 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityFilterChain securityChain(HttpSecurity httpSecurity) throws Exception {
-		return httpSecurity
-				.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(registry -> {
+		return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
 			registry.requestMatchers("/home", "/login/**", "/register/**").permitAll();
 			registry.requestMatchers("/admin/**").hasRole("ADMIN");
 			registry.requestMatchers("/user/**").hasRole("USER");
 			registry.requestMatchers("/api/**").hasRole("ADMIN");
 			registry.anyRequest().authenticated();
-		})
-		.userDetailsService(userService)
+		}).userDetailsService(userService)
 //		.sessionManagement(session->session
 //			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				
-				/*
-				 * .formLogin(httpSecurityFormLoginConfigurer -> {
-				 * httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
-				 * AuthenticationSuccessHandler()) .permitAll(); })
-				 */
+				  .formLogin(httpSecurityFormLoginConfigurer -> {
+				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
+				  AuthenticationSuccessHandler()) .permitAll(); })
 				 
-		.build();
+				.build();
 	}
+
 	@Bean
 	public UserDetailsService userDetailsService() {
 		return userService;
@@ -70,7 +66,7 @@ public class SecurityConfiguration {
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
-	
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 		return configuration.getAuthenticationManager();
@@ -81,4 +77,3 @@ public class SecurityConfiguration {
 		return new BCryptPasswordEncoder();
 	}
 }
-

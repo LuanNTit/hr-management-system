@@ -81,4 +81,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 		employeeDTO.setSalary(employeeEntity.getSalary());
 		return employeeDTO;
 	}
+
+	@Override
+	public EmployeeDTO updateEmployee(Long id, EmployeeDTO employee) {
+		EmployeeDTO updateEmmployee = getEmployeeById(id);
+		updateEmmployee.setName(employee.getName());
+		updateEmmployee.setDateOfBirth(employee.getDateOfBirth());
+		updateEmmployee.setPosition(employee.getPosition());
+		updateEmmployee.setAge(employee.getAge());
+		updateEmmployee.setSalary(employee.getSalary());
+		return updateEmmployee;
+	}
 }

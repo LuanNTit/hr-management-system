@@ -52,9 +52,8 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<ResponseObject> updateEmployee(@PathVariable Long id, @RequestBody EmployeeEntity newEmployee) {
-		EmployeeDTO employee = employeeService.getEmployeeById(id);
-		EmployeeDTO updateEmployee = employeeService.saveEmployee(employee);
+	public ResponseEntity<ResponseObject> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employee) {
+		EmployeeDTO updateEmployee = employeeService.updateEmployee(id, employee);
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(new ResponseObject("ok", "Update Employee successfully", updateEmployee));
 	}

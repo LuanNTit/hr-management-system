@@ -38,7 +38,7 @@
 		<tbody>
 			<tr th:each="employee : ${listEmployees}">
 				<td th:text="${employee.name}"></td>
-				<td th:text="${#dates.format(employee.dateOfBirth, 'dd-MM-yyyy')}"></td>
+				<td th:text="${#dates.format(employee.dateOfBirth, 'dd-MM-YYYY')}"></td>
 				<td th:text="${employee.position}"></td>
 				<td th:text="${employee.salary}"></td>
 				<td th:text="${employee.age}"></td>
