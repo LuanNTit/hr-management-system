@@ -37,7 +37,7 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityFilterChain securityChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
-			registry.requestMatchers("/home", "/login/**", "/register/**").permitAll();
+			registry.requestMatchers("/home/**", "/login/**", "/register/**").permitAll();
 			registry.requestMatchers("/admin/**").hasRole("ADMIN");
 			registry.requestMatchers("/user/**").hasRole("USER");
 			registry.requestMatchers("/api/**").hasRole("ADMIN");
