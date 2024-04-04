@@ -17,12 +17,12 @@ import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import com.luan.hrmanagementsystem.services.EmployeeService;
 
 @Controller
-@RequestMapping("/admin/employee")
+//@RequestMapping("/admin/employee")
 public class UIEmployeeController {
 	@Autowired
 	private EmployeeService employeeService;
 	// display list of employees
-	@GetMapping("")
+	@GetMapping("/employees")
 	public String viewHomePage(Model model) {
 		return findPaginated(1, "name", "asc", model);
 	}
