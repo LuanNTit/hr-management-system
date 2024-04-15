@@ -2,6 +2,7 @@ package com.luan.hrmanagementsystem.controllers;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.luan.hrmanagementsystem.dto.EmployeeDTO;
-import com.luan.hrmanagementsystem.dto.ResponseObject;
-import com.luan.hrmanagementsystem.models.EmployeeEntity;
+import com.luan.hrmanagementsystem.models.ResponseObject;
 import com.luan.hrmanagementsystem.services.EmployeeService;
 
 @RestController
 @RequestMapping("/api/employees")
+@RequiredArgsConstructor
 public class EmployeeController {
+	private final EmployeeService employeeService;
 
-	@Autowired
-	private EmployeeService employeeService;
-
-	@GetMapping("")
+    @GetMapping("")
 	public ResponseEntity<ResponseObject> getAllEmployees() {
 		List<EmployeeDTO> employees = employeeService.getAllEmployees();
 		return ResponseEntity.ok(new ResponseObject("ok", "List employees successfully", employees));

@@ -1,11 +1,12 @@
 package com.luan.hrmanagementsystem.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.luan.hrmanagementsystem.dto.ResponseObject;
+import com.luan.hrmanagementsystem.models.ResponseObject;
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.services.UserService;
@@ -14,12 +15,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
     @PostMapping("")
     public ResponseEntity<ResponseObject> createUser(@RequestBody UserDTO user) {
@@ -29,7 +29,7 @@ public class UserController {
 				.body(new ResponseObject("ok", "User created successfully", createdUser));
     }
     
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<ResponseObject> getAllUsers() {
     	List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.status(HttpStatus.OK)

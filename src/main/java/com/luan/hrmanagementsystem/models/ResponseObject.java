@@ -1,4 +1,4 @@
-package com.luan.hrmanagementsystem.dto;
+package com.luan.hrmanagementsystem.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
