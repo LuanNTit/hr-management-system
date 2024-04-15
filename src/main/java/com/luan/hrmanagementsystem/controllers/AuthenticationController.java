@@ -35,12 +35,9 @@ public class AuthenticationController {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
 
-	@GetMapping("/logout")
-	public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null) {
-			new SecurityContextLogoutHandler().logout(request, response, authentication);
-		}
-		return ResponseEntity.ok("Logged out successfully");
+	@PostMapping("/api/logout")
+	public String logout() {
+		// Thực hiện logic logout ở đây
+		return "Logout successful";
 	}
 }
