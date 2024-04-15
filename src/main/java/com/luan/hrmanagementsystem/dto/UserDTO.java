@@ -13,4 +13,9 @@ public class UserDTO {
     private String encryptedPassword;
     private boolean enabled;
     private String role; //Eg: USER, ADMIN
+
+    public UserDTO(String userName, String encryptedPassword) {
+        this.userName = userName;
+        this.encryptedPassword = encryptedPassword;
+    }
 }

@@ -1,20 +1,25 @@
 package com.luan.hrmanagementsystem.models;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Data
+@Table(name = "token")
 public class TokenEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)// auto-increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "token")
     private String token;
-    private boolean expired;
-    private boolean revoked;
-    private Long user_id;
+
+    @Column(name = "is_logged_out")
+    private boolean loggedOut;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }
+

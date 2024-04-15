@@ -20,31 +20,9 @@ import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 @Service
-public class UserServiceImpl implements UserService,  UserDetailsService {
+public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
-	
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<UserEntity> user = userRepository.findByUserName(username);
-		if (user.isPresent()) {
-			var userObj = convertToDTO(user.get());
-			return User.builder()
-					.username(userObj.getUserName())
-					.password(userObj.getEncryptedPassword())
-					.roles(getRoles(userObj))
-					.build();
-		} else {
-			throw new UsernameNotFoundException(username);
-		}
-	}
-	
-	private String[] getRoles(UserDTO user){
-		if (user.getRole() == null) {
-			return new String[] {"USER"};
-		}
-		return user.getRole().split(",");
-	}
 
 	@Override
 	public void deleteUserById(Long id) {

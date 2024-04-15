@@ -1,5 +1,7 @@
 package com.luan.hrmanagementsystem.controllers;
 
+import com.luan.hrmanagementsystem.dto.UserDTO;
+import com.luan.hrmanagementsystem.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,25 +21,20 @@ import com.luan.hrmanagementsystem.services.AuthenticationServiceImpl;
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
-	private final AuthenticationServiceImpl authService;
-	
+	private final AuthenticationService authService;
+
+
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> register(
-		@RequestBody UserEntity request
+			@RequestBody UserDTO request
 	) {
 		return ResponseEntity.ok(authService.register(request));
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthenticationResponse> login(
-		@RequestBody UserEntity request
+			@RequestBody UserDTO request
 	) {
 		return ResponseEntity.ok(authService.authenticate(request));
-	}
-
-	@PostMapping("/api/logout")
-	public String logout() {
-		// Thực hiện logic logout ở đây
-		return "Logout successful";
 	}
 }
