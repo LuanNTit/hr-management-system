@@ -47,9 +47,9 @@ public class SecurityConfiguration {
 //			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				
-				  .formLogin(httpSecurityFormLoginConfigurer -> {
-				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
-				  AuthenticationSuccessHandler()) .permitAll(); })
+//				  .formLogin(httpSecurityFormLoginConfigurer -> {
+//				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
+//				  AuthenticationSuccessHandler()) .permitAll(); })
 				 
 				.build();
 	}
