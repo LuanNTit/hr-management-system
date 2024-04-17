@@ -1,6 +1,10 @@
 package com.luan.hrmanagementsystem.config;
 
 import com.luan.hrmanagementsystem.services.UserDetailsServiceImp;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,9 @@ import com.luan.hrmanagementsystem.filter.JwtAuthenticationFilter;
 import com.luan.hrmanagementsystem.services.UserServiceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -40,12 +47,14 @@ public class SecurityConfiguration {
 		return httpSecurity
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(registry -> {
-					registry.requestMatchers("/home/**", "/login/**", "/register/**", "/api/logout/**").permitAll();
+					registry.requestMatchers("/home/**", "/login/**", "/register/**", "/hello/**", "/lock/**").permitAll();
 					registry.requestMatchers("/admin/**").hasRole("ADMIN");
 					registry.requestMatchers("/user/**").hasRole("USER");
 					registry.requestMatchers("/api/**").hasRole("ADMIN");
+					registry.requestMatchers("/lock/**").hasRole("ADMIN");
 					registry.anyRequest().authenticated();
-				}).userDetailsService(userDetailsServiceImp)
+				})
+				.userDetailsService(userDetailsServiceImp)
 				.sessionManagement(session->session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

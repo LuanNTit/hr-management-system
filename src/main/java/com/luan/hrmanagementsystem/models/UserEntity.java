@@ -9,6 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Collection;
 
 @Entity
 @Data
@@ -23,6 +29,7 @@ public class UserEntity {
     private String userName;
     private String encryptedPassword;
     private boolean enabled;
+    private boolean locked;
     private String role; //Eg: USER, ADMIN
 	public UserEntity(String userName, String encryptedPassword, String role, boolean enabled) {
 		super();

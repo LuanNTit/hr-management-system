@@ -2,21 +2,12 @@ package com.luan.hrmanagementsystem.controllers;
 
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.services.AuthenticationService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.luan.hrmanagementsystem.dto.AuthenticationResponse;
-import com.luan.hrmanagementsystem.models.UserEntity;
-import com.luan.hrmanagementsystem.services.AuthenticationServiceImpl;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,5 +27,10 @@ public class AuthenticationController {
 			@RequestBody UserDTO request
 	) {
 		return ResponseEntity.ok(authService.authenticate(request));
+	}
+
+	@PostMapping("/lock")
+	public ResponseEntity<String> lockUser(@RequestParam("username") String username) {
+		return ResponseEntity.ok(authService.lockUser(username));
 	}
 }

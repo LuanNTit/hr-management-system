@@ -14,6 +14,7 @@ import com.luan.hrmanagementsystem.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +52,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		saveUserToken(jwt, user);
 
 		return new AuthenticationResponse(jwt, "User login was successful");
+	}
+
+	@Override
+	public String lockUser(String username) {
+		Optional<UserEntity> findUser = repository.findByUserName(username);
+		if (findUser.isPresent()) {
+			UserEntity user = findUser.get();
+			user.setLocked(true);
+			repository.save(user);
+			return "Tài khoản '" + username + "' đã bị khóa.";
+		} else {
+			return "Không tìm thấy tài khoản với tên người dùng '" + username + "'.";
+		}
 	}
 
 	private void revokeAllTokenByUser(UserEntity user) {

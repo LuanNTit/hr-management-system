@@ -21,17 +21,17 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> user = userRepository.findByUserName(username);
-        if (user.isPresent()) {
-            var userObj = convertToDTO(user.get());
-            return User.builder()
-                    .username(userObj.getUserName())
-                    .password(userObj.getEncryptedPassword())
-                    .roles(getRoles(userObj))
-                    .build();
-        } else {
-            throw new UsernameNotFoundException(username);
+        UserEntity userEntity = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        if (userEntity.isLocked()) {
+            throw new UsernameNotFoundException("User account is locked.");
         }
+        return User.builder()
+                .username(userEntity.getUserName())
+                .password(userEntity.getEncryptedPassword())
+                .roles(getRoles(userEntity))
+                .build();
     }
     public UserDTO convertToDTO(UserEntity userEntity) {
         if (userEntity == null) {
@@ -45,7 +45,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         userDTO.setEnabled(userEntity.isEnabled());
         return userDTO;
     }
-    private String[] getRoles(UserDTO user){
+    private String[] getRoles(UserEntity user){
         if (user.getRole() == null) {
             return new String[] {"USER"};
         }

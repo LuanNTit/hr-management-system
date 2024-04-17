@@ -7,4 +7,5 @@ import com.luan.hrmanagementsystem.models.UserEntity;
 public interface AuthenticationService {
 	AuthenticationResponse register(UserDTO request);
 	AuthenticationResponse authenticate(UserDTO request);
+	String lockUser(String username);
 }
