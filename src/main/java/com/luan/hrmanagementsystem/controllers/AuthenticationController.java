@@ -33,4 +33,9 @@ public class AuthenticationController {
 	public ResponseEntity<String> lockUser(@RequestParam("username") String username) {
 		return ResponseEntity.ok(authService.lockUser(username));
 	}
+
+	@PostMapping("/forgot-password")
+	public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+		return ResponseEntity.ok(authService.processForgotPassword(email));
+	}
 }

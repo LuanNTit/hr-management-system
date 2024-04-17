@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,10 +62,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			UserEntity user = findUser.get();
 			user.setLocked(true);
 			repository.save(user);
-			return "Tài khoản '" + username + "' đã bị khóa.";
+			return "Account '" + username + "' blocked.";
 		} else {
-			return "Không tìm thấy tài khoản với tên người dùng '" + username + "'.";
+			return "No account found with username '" + username + "'.";
 		}
+	}
+
+	@Override
+	public String processForgotPassword(String email) {
+		Optional<UserEntity> findUser = repository.findByEmail(email);
+		if (findUser.isPresent()) {
+			UserEntity user = findUser.get();
+			String newPassword = UUID.randomUUID().toString();
+			user.setEncryptedPassword(passwordEncoder.encode(newPassword));
+			repository.save(user);
+
+			// Send an email containing the new password
+			sendResetPasswordEmail(user.getEmail(), newPassword);
+			return "New password reset email sent " + newPassword + " to the address " + user.getEmail();
+		} else {
+			return "No account found with email '" + email + "'.";
+		}
+	}
+
+	@Override
+	public String sendResetPasswordEmail(String toEmail, String newPassword) {
+		return "New password reset email sent " + newPassword + " to the address " + toEmail;
 	}
 
 	private void revokeAllTokenByUser(UserEntity user) {

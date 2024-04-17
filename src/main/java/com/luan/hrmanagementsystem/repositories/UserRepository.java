@@ -8,4 +8,5 @@ import com.luan.hrmanagementsystem.models.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	boolean existsByUserName(String userName);
 	Optional<UserEntity> findByUserName(String userName);
+	Optional<UserEntity> findByEmail(String email);
 }

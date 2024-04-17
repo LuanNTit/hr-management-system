@@ -8,4 +8,6 @@ public interface AuthenticationService {
 	AuthenticationResponse register(UserDTO request);
 	AuthenticationResponse authenticate(UserDTO request);
 	String lockUser(String username);
+	String processForgotPassword(String email);
+	String sendResetPasswordEmail(String toEmail, String resetPasswordLink);
 }
