@@ -63,6 +63,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
+	public Page<EmployeeDTO> getAllEmployees(int page, int size) {
+		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAll(PageRequest.of(page, size));
+		return pageEmployeeEntity.map(this::convertToDTO);
+	}
+
+	@Override
 	public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
 		EmployeeEntity employeeEntity = new EmployeeEntity();
 		employeeEntity.setId(employeeDTO.getId());

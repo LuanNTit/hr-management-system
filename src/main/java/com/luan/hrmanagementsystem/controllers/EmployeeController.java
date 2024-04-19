@@ -3,6 +3,7 @@ package com.luan.hrmanagementsystem.controllers;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,11 @@ public class EmployeeController {
 	}
 
     @GetMapping("")
-	public ResponseEntity<ResponseObject> getAllEmployees() {
-		List<EmployeeDTO> employees = employeeService.getAllEmployees();
-		return ResponseEntity.ok(new ResponseObject("ok", "List employees successfully", employees));
+	public ResponseEntity<ResponseObject> getAllEmployees(@RequestParam(defaultValue = "0") int page,
+														  @RequestParam(defaultValue = "5") int size) {
+		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size);
+
+		return ResponseEntity.ok(new ResponseObject("ok", "List paging employees successfully", pagingEmployees));
 	}
 
 	@GetMapping("/{id}")

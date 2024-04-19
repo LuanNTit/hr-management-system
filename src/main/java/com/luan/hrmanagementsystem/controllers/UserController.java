@@ -2,6 +2,7 @@ package com.luan.hrmanagementsystem.controllers;
 
 import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,10 +34,11 @@ public class UserController {
     }
     
     @GetMapping("")
-    public ResponseEntity<ResponseObject> getAllUsers() {
-    	List<UserDTO> users = userService.getAllUsers();
+    public ResponseEntity<ResponseObject> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "5") int size) {
+    	Page<UserDTO> pagingUsers = userService.getAllUsers(page, size);
         return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseObject("ok", "List users successfully", users));
+				.body(new ResponseObject("ok", "List paging users successfully", pagingUsers));
     }
 
     @GetMapping("/{userId}")
