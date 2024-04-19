@@ -3,7 +3,8 @@ package com.luan.hrmanagementsystem.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,9 +16,9 @@ import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
 @Service
+@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
-	@Autowired
-	private EmployeeRepository employeeRepository;
+	private final EmployeeRepository employeeRepository;
 	
 	@Override
 	public List<EmployeeDTO> getAllEmployees() {
@@ -28,13 +29,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public EmployeeDTO getEmployeeById(long id) {
 		Optional<EmployeeEntity> optional = employeeRepository.findById(id);
-		EmployeeEntity employee = null;
 		if (optional.isPresent()) {
-			employee = optional.get();
+			EmployeeEntity employee = optional.get();
+			return convertToDTO(employee);
 		} else {
 			throw new RuntimeException("Employee not found for id :: " + id);
 		}
-		return convertToDTO(employee);
+
 	}
 
 	@Override
@@ -53,6 +54,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
         return new PageImpl<>(dtos, pageable, pages.getTotalElements());
+	}
+
+	@Override
+	public List<EmployeeDTO> searchEmployee(String name) {
+		List<EmployeeEntity> employeeByNames = employeeRepository.findByNameContaining(name);
+		return employeeByNames.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
 	@Override

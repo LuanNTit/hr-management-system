@@ -3,9 +3,6 @@ package com.luan.hrmanagementsystem.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.luan.hrmanagementsystem.dto.EmployeeDTO;
-import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,6 +51,12 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
         return new PageImpl<>(dtos, pageable, pages.getTotalElements());
+	}
+
+	@Override
+	public List<UserDTO> searchUser(String username) {
+		List<UserEntity> userByUserNames = userRepository.findByUserNameContaining(username);
+		return userByUserNames.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
 	@Override

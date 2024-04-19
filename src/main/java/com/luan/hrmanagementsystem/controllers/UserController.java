@@ -1,5 +1,6 @@
 package com.luan.hrmanagementsystem.controllers;
 
+import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,11 @@ public class UserController {
     private final UserService userService;
 
 	private final PasswordEncoder passwordEncoder;
-
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> searchByName(@RequestParam String username) {
+        List<UserDTO> userSearchByUserames = userService.searchUser(username);
+        return ResponseEntity.ok(new ResponseObject("ok", "List user search by user name successfully", userSearchByUserames));
+    }
     @PostMapping("")
     public ResponseEntity<ResponseObject> createUser(@RequestBody UserDTO user) {
     	user.setEncryptedPassword(passwordEncoder.encode(user.getEncryptedPassword()));

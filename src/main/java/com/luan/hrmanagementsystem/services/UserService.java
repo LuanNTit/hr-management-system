@@ -13,4 +13,5 @@ public interface UserService {
 	void deleteUserById(Long id);
 	UserDTO updateUser(Long id, UserDTO user);
 	Page<UserDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
+	List<UserDTO> searchUser(String name);
 }
