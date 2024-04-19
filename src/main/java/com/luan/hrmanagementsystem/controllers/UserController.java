@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.luan.hrmanagementsystem.dto.ResponseObject;
 import com.luan.hrmanagementsystem.dto.UserDTO;
-import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.services.UserService;
 
 import java.util.List;
@@ -48,11 +47,10 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody UserEntity updatedUser) {
-    	UserDTO user = userService.getUserById(userId);
-        UserDTO userUpdate = userService.saveUser(user);
+    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
+        UserDTO updateUser = userService.updateUser(userId, userDTO);
         return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseObject("ok", "Update Employee successfully", userUpdate));
+				.body(new ResponseObject("ok", "Update Employee successfully", updateUser));
     }
 
     @DeleteMapping("/{userId}")
@@ -61,6 +59,5 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
 				.body(new ResponseObject("ok", "Delete product successfully", ""));
     }
-    
 }
 

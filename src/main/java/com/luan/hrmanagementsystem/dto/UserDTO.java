@@ -8,14 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class UserDTO {
-	private Long userId;
+    private Long userId;
     private String userName;
     private String encryptedPassword;
     private boolean enabled;
+    private boolean locked;
+    private String email;
     private String role; //Eg: USER, ADMIN
-
-    public UserDTO(String userName, String encryptedPassword) {
-        this.userName = userName;
-        this.encryptedPassword = encryptedPassword;
-    }
 }

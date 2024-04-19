@@ -4,29 +4,44 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.luan.hrmanagementsystem.dto.EmployeeDTO;
+import com.luan.hrmanagementsystem.models.EmployeeEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
 	@Override
 	public void deleteUserById(Long id) {
 		this.userRepository.deleteById(id);
+	}
+
+	@Override
+	public UserDTO updateUser(Long id, UserDTO user) {
+		// find employee by id
+		Optional<UserEntity> findUser = this.userRepository.findById(id);
+		if (findUser.isPresent()) {
+			UserEntity updateUserEntity = findUser.get();
+			updateUserEntity.setUserName(user.getUserName());
+			updateUserEntity.setEmail(user.getEmail());
+			updateUserEntity.setRole(user.getRole());
+			updateUserEntity.setLocked(user.isLocked());
+			updateUserEntity.setEnabled(user.isEnabled());
+			updateUserEntity.setEncryptedPassword(user.getEncryptedPassword());
+			return convertToDTO(this.userRepository.save(updateUserEntity));
+		}
+		return null;
 	}
 
 	@Override
@@ -50,13 +65,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDTO getUserById(Long id) {
 		Optional<UserEntity> optional = userRepository.findById(id);
-		UserEntity user = null;
+
 		if (optional.isPresent()) {
-			user = optional.get();
+			UserEntity user = optional.get();
+			return convertToDTO(user);
 		} else {
 			throw new RuntimeException("Employee not found for id :: " + id);
 		}
-		return convertToDTO(user);
 	}
 
 	@Override
@@ -67,21 +82,25 @@ public class UserServiceImpl implements UserService {
 		userEntity.setEncryptedPassword(userDTO.getEncryptedPassword());
 		userEntity.setRole(userDTO.getRole());
 		userEntity.setEnabled(userDTO.isEnabled());
+		userEntity.setEmail(userDTO.getEmail());
 		UserEntity user = this.userRepository.save(userEntity);
 		return convertToDTO(user);
 	}
 	
 	public UserDTO convertToDTO(UserEntity userEntity) {
-		if (userEntity == null) {
-			return null;
+		if (userEntity != null) {
+			UserDTO userDTO = new UserDTO();
+			userDTO.setUserId(userEntity.getUserId());
+			userDTO.setUserName(userEntity.getUserName());
+			userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
+			userDTO.setRole(userEntity.getRole());
+			userDTO.setEmail(userEntity.getEmail());
+			userDTO.setLocked(userEntity.isLocked());
+			userDTO.setEnabled(userEntity.isEnabled());
+			return userDTO;
 		}
-		UserDTO userDTO = new UserDTO();
-		userDTO.setUserId(userEntity.getUserId());
-		userDTO.setUserName(userEntity.getUserName());
-		userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
-		userDTO.setRole(userEntity.getRole());
-		userDTO.setEnabled(userEntity.isEnabled());
-		return userDTO;
+		else {
+			throw new RuntimeException("User entity null");
+		}
 	}
-	
 }
