@@ -1,5 +1,9 @@
 package com.luan.hrmanagementsystem.services;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Filter;
@@ -52,21 +56,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Page<EmployeeDTO> getAllEmployees(int page, int size, String sortField, String sortDirection, int minAge, int maxAge) {
+	public Page<EmployeeDTO> getAllEmployees(int page, int size,
+											 String sortField, String sortDirection,
+											 int minAge, int maxAge,
+											 String startDate, String endDate) throws ParseException {
 		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
 				Sort.by(sortField).descending();
 		PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
 		// Get one page of the employee list
-		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(pageRequest);
+//		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(pageRequest);
+
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date startDated = dateFormat.parse(startDate);
+		Date endDated = dateFormat.parse(endDate);
+		Page<EmployeeEntity> employeesInRange = employeeRepository.findByDateOfBirthBetween(startDated, endDated, pageRequest);
 		// Filter employee list by age condition from 20 to 30 and convert to DTO
-		List<EmployeeDTO> filteredEmployees = pageEmployeeEntity
+		List<EmployeeDTO> filteredEmployees = employeesInRange
 				.getContent()
 				.stream()
 				.filter(emp -> emp.getAge() >= minAge && emp.getAge() <= maxAge)
 				.map(this::convertToDTO)
 				.toList();
 		// Create a new page from the filtered and returned list
-		return new PageImpl<>(filteredEmployees, pageRequest, pageEmployeeEntity.getTotalElements());
+		return new PageImpl<>(filteredEmployees, pageRequest, employeesInRange.getTotalElements());
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.luan.hrmanagementsystem.controllers;
 
+import java.text.ParseException;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,11 @@ public class EmployeeController {
 														  @RequestParam(defaultValue = "name") String sortField,
 														  @RequestParam(defaultValue = "asc") String sortDirection,
 														  @RequestParam(defaultValue = "0") int minAge,
-														  @RequestParam(defaultValue = "100") int maxAge
-														  ) {
-		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size, sortField, sortDirection, minAge, maxAge);
+														  @RequestParam(defaultValue = "100") int maxAge,
+														  @RequestParam(defaultValue = "1970-01-01") String startDate,
+														  @RequestParam(defaultValue = "3000-01-01") String endDate
+														  ) throws ParseException {
+		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size, sortField, sortDirection, minAge, maxAge, startDate, endDate);
 
 		return ResponseEntity.ok(new ResponseObject("ok", "List paging employees successfully", pagingEmployees));
 	}
