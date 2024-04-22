@@ -1,6 +1,5 @@
 package com.luan.hrmanagementsystem.controllers;
 
-import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,8 +21,8 @@ public class UserController {
 	private final PasswordEncoder passwordEncoder;
     @GetMapping("/search")
     public ResponseEntity<ResponseObject> searchByName(@RequestParam String username) {
-        List<UserDTO> userSearchByUserames = userService.searchUser(username);
-        return ResponseEntity.ok(new ResponseObject("ok", "List user search by user name successfully", userSearchByUserames));
+        List<UserDTO> userSearchByUsernames = userService.searchUser(username);
+        return ResponseEntity.ok(new ResponseObject("ok", "List user search by user name successfully", userSearchByUsernames));
     }
     @PostMapping("")
     public ResponseEntity<ResponseObject> createUser(@RequestBody UserDTO user) {
@@ -34,9 +33,11 @@ public class UserController {
     }
     
     @GetMapping("")
-    public ResponseEntity<ResponseObject> getAllUsers(@RequestParam(defaultValue = "0") int page,
-                                                      @RequestParam(defaultValue = "5") int size) {
-    	Page<UserDTO> pagingUsers = userService.getAllUsers(page, size);
+    public ResponseEntity<ResponseObject> getAllUsers(@RequestParam(defaultValue = "1") int page,
+                                                      @RequestParam(defaultValue = "5") int size,
+                                                      @RequestParam(defaultValue = "userName") String sortField,
+                                                      @RequestParam(defaultValue = "asc") String sortDirection) {
+    	Page<UserDTO> pagingUsers = userService.getAllUsers(page, size, sortField, sortDirection);
         return ResponseEntity.status(HttpStatus.OK)
 				.body(new ResponseObject("ok", "List paging users successfully", pagingUsers));
     }

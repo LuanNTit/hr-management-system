@@ -3,8 +3,6 @@ package com.luan.hrmanagementsystem.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,26 +42,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Page<UserDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection) {
-		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
-			Sort.by(sortField).descending();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-        Page<UserEntity> pages = this.userRepository.findAll(pageable);
-        List<UserDTO> dtos = pages.getContent().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-        return new PageImpl<>(dtos, pageable, pages.getTotalElements());
-	}
-
-	@Override
 	public List<UserDTO> searchUser(String username) {
 		List<UserEntity> userByUserNames = userRepository.findByUserNameContaining(username);
 		return userByUserNames.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
 	@Override
-	public Page<UserDTO> getAllUsers(int page, int size) {
-		Page<UserEntity> pageEmployeeEntity = userRepository.findAll(PageRequest.of(page, size));
+	public Page<UserDTO> getAllUsers(int page, int size, String sortField, String sortDirection) {
+		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
+				Sort.by(sortField).descending();
+		Page<UserEntity> pageEmployeeEntity = userRepository.findAllBy(PageRequest.of(page - 1, size, sort));
 		return pageEmployeeEntity.map(this::convertToDTO);
 	}
 

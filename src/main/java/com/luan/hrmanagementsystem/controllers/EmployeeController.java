@@ -24,9 +24,12 @@ public class EmployeeController {
 	}
 
     @GetMapping("")
-	public ResponseEntity<ResponseObject> getAllEmployees(@RequestParam(defaultValue = "0") int page,
-														  @RequestParam(defaultValue = "5") int size) {
-		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size);
+	public ResponseEntity<ResponseObject> getAllEmployees(@RequestParam(defaultValue = "1") int page,
+														  @RequestParam(defaultValue = "5") int size,
+														  @RequestParam(defaultValue = "name") String sortField,
+														  @RequestParam(defaultValue = "asc") String sortDirection
+														  ) {
+		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size, sortField, sortDirection);
 
 		return ResponseEntity.ok(new ResponseObject("ok", "List paging employees successfully", pagingEmployees));
 	}

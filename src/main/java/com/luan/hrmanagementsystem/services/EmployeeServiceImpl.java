@@ -19,7 +19,7 @@ import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 	private final EmployeeRepository employeeRepository;
-	
+
 	@Override
 	public List<EmployeeDTO> getAllEmployees() {
 		List<EmployeeEntity> employees = employeeRepository.findAll();
@@ -45,26 +45,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Page<EmployeeDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection) {
-		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
-			Sort.by(sortField).descending();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-        Page<EmployeeEntity> pages = this.employeeRepository.findAll(pageable);
-        List<EmployeeDTO> dtos = pages.getContent().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-        return new PageImpl<>(dtos, pageable, pages.getTotalElements());
-	}
-
-	@Override
 	public List<EmployeeDTO> searchEmployee(String name) {
 		List<EmployeeEntity> employeeByNames = employeeRepository.findByNameContaining(name);
 		return employeeByNames.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
 	@Override
-	public Page<EmployeeDTO> getAllEmployees(int page, int size) {
-		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAll(PageRequest.of(page, size));
+	public Page<EmployeeDTO> getAllEmployees(int page, int size, String sortField, String sortDirection) {
+		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
+				Sort.by(sortField).descending();
+		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(PageRequest.of(page - 1, size, sort));
+
 		return pageEmployeeEntity.map(this::convertToDTO);
 	}
 

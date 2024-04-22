@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Long> {
     List<EmployeeEntity> findByNameContaining(String name);
-    Page<EmployeeEntity> findAll(Pageable pageable);
+    Page<EmployeeEntity> findAllBy(Pageable pageable);
 }
 
