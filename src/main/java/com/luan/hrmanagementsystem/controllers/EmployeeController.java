@@ -27,9 +27,11 @@ public class EmployeeController {
 	public ResponseEntity<ResponseObject> getAllEmployees(@RequestParam(defaultValue = "1") int page,
 														  @RequestParam(defaultValue = "5") int size,
 														  @RequestParam(defaultValue = "name") String sortField,
-														  @RequestParam(defaultValue = "asc") String sortDirection
+														  @RequestParam(defaultValue = "asc") String sortDirection,
+														  @RequestParam(defaultValue = "0") int minAge,
+														  @RequestParam(defaultValue = "100") int maxAge
 														  ) {
-		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size, sortField, sortDirection);
+		Page<EmployeeDTO> pagingEmployees = employeeService.getAllEmployees(page, size, sortField, sortDirection, minAge, maxAge);
 
 		return ResponseEntity.ok(new ResponseObject("ok", "List paging employees successfully", pagingEmployees));
 	}

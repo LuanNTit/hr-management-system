@@ -2,6 +2,7 @@ package com.luan.hrmanagementsystem.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -51,12 +52,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Page<EmployeeDTO> getAllEmployees(int page, int size, String sortField, String sortDirection) {
+	public Page<EmployeeDTO> getAllEmployees(int page, int size, String sortField, String sortDirection, int minAge, int maxAge) {
 		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
 				Sort.by(sortField).descending();
-		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(PageRequest.of(page - 1, size, sort));
-
-		return pageEmployeeEntity.map(this::convertToDTO);
+		PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
+		// Get one page of the employee list
+		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(pageRequest);
+		// Filter employee list by age condition from 20 to 30 and convert to DTO
+		List<EmployeeDTO> filteredEmployees = pageEmployeeEntity
+				.getContent()
+				.stream()
+				.filter(emp -> emp.getAge() >= minAge && emp.getAge() <= maxAge)
+				.map(this::convertToDTO)
+				.toList();
+		// Create a new page from the filtered and returned list
+		return new PageImpl<>(filteredEmployees, pageRequest, pageEmployeeEntity.getTotalElements());
 	}
 
 	@Override
