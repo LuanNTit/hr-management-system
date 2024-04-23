@@ -2,7 +2,12 @@ package com.luan.hrmanagementsystem.controllers;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -12,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import com.luan.hrmanagementsystem.dto.ResponseObject;
 import com.luan.hrmanagementsystem.services.EmployeeService;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
+@Tag(name = "employee-MG-services")
 public class EmployeeController {
 	private final EmployeeService employeeService;
 	@GetMapping("/search")
@@ -23,7 +30,10 @@ public class EmployeeController {
 		List<EmployeeDTO> employeeSearchByName = employeeService.searchEmployee(name);
 		return ResponseEntity.ok(new ResponseObject("ok", "List employees search by name successfully", employeeSearchByName));
 	}
-
+	@Operation(
+		description = "Get endpoint for manager",
+		summary = "This is a summary for manager get endpoint"
+	)
     @GetMapping("")
 	public ResponseEntity<ResponseObject> getAllEmployees(@RequestParam(defaultValue = "1") int page,
 														  @RequestParam(defaultValue = "5") int size,

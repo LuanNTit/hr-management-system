@@ -2,6 +2,7 @@ package com.luan.hrmanagementsystem.controllers;
 
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.services.AuthenticationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import com.luan.hrmanagementsystem.dto.AuthenticationResponse;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "authentication-services")
 public class AuthenticationController {
 	private final AuthenticationService authService;
 
