@@ -63,12 +63,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
 				Sort.by(sortField).descending();
 		PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
-		// Get one page of the employee list
-//		Page<EmployeeEntity> pageEmployeeEntity = employeeRepository.findAllBy(pageRequest);
 
+		// convert type string to date
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date startDated = dateFormat.parse(startDate);
 		Date endDated = dateFormat.parse(endDate);
+		// Get one page of the employee list
 		Page<EmployeeEntity> employeesInRange = employeeRepository.findByDateOfBirthBetween(startDated, endDated, pageRequest);
 		// Filter employee list by age condition from 20 to 30 and convert to DTO
 		List<EmployeeDTO> filteredEmployees = employeesInRange

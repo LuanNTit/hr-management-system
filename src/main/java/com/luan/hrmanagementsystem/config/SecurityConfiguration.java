@@ -48,7 +48,16 @@ public class SecurityConfiguration {
 		return httpSecurity
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(registry -> {
-					registry.requestMatchers("/home/**", "/login/**", "/register/**", "/forgot-password/**").permitAll();
+					registry.requestMatchers("/home/**", "/login/**", "/register/**", "/forgot-password/**",
+								"/v2/api-docs",
+								"/v3/api-docs",
+								"/v3/api-docs/**",
+								"swagger-resources",
+								"/configuration/ui",
+								"/configuration/security",
+								"/swagger-ui/**",
+								"/webjars/**",
+								"/swagger-ui.html").permitAll();
 					registry.requestMatchers("/admin/**").hasRole("ADMIN");
 					registry.requestMatchers("/user/**").hasRole("USER");
 					registry.requestMatchers("/api/**").hasRole("ADMIN");
@@ -72,6 +81,8 @@ public class SecurityConfiguration {
 						))
 				.build();
 	}
+
+
 
 	@Bean
 	public UserDetailsService userDetailsService() {

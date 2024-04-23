@@ -1,2 +1,5 @@
-package com.luan.hrmanagementsystem.services;public class UploadService {
+package com.luan.hrmanagementsystem.services;
+
+public class UploadService {
+
 }
