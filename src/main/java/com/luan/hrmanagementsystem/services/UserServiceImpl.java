@@ -3,48 +3,21 @@ package com.luan.hrmanagementsystem.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 @Service
-public class UserServiceImpl implements UserService,  UserDetailsService {
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<UserEntity> user = userRepository.findByUserName(username);
-		if (user.isPresent()) {
-			var userObj = convertToDTO(user.get());
-			return User.builder()
-					.username(userObj.getUserName())
-					.password(userObj.getEncryptedPassword())
-					.roles(getRoles(userObj))
-					.build();
-		} else {
-			throw new UsernameNotFoundException(username);
-		}
-	}
-	
-	private String[] getRoles(UserDTO user){
-		if (user.getRole() == null) {
-			return new String[] {"USER"};
-		}
-		return user.getRole().split(",");
-	}
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+	private final UserRepository userRepository;
 
 	@Override
 	public void deleteUserById(Long id) {
@@ -52,15 +25,34 @@ public class UserServiceImpl implements UserService,  UserDetailsService {
 	}
 
 	@Override
-	public Page<UserDTO> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection) {
+	public UserDTO updateUser(Long id, UserDTO user) {
+		// find employee by id
+		Optional<UserEntity> findUser = this.userRepository.findById(id);
+		if (findUser.isPresent()) {
+			UserEntity updateUserEntity = findUser.get();
+			updateUserEntity.setUserName(user.getUserName());
+			updateUserEntity.setEmail(user.getEmail());
+			updateUserEntity.setRole(user.getRole());
+			updateUserEntity.setLocked(user.isLocked());
+			updateUserEntity.setEnabled(user.isEnabled());
+			updateUserEntity.setEncryptedPassword(user.getEncryptedPassword());
+			return convertToDTO(this.userRepository.save(updateUserEntity));
+		}
+		return null;
+	}
+
+	@Override
+	public List<UserDTO> searchUser(String username) {
+		List<UserEntity> userByUserNames = userRepository.findByUserNameContaining(username);
+		return userByUserNames.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
+
+	@Override
+	public Page<UserDTO> getAllUsers(int page, int size, String sortField, String sortDirection) {
 		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
-			Sort.by(sortField).descending();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-        Page<UserEntity> pages = this.userRepository.findAll(pageable);
-        List<UserDTO> dtos = pages.getContent().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-        return new PageImpl<>(dtos, pageable, pages.getTotalElements());
+				Sort.by(sortField).descending();
+		Page<UserEntity> pageEmployeeEntity = userRepository.findAllBy(PageRequest.of(page - 1, size, sort));
+		return pageEmployeeEntity.map(this::convertToDTO);
 	}
 
 	@Override
@@ -72,13 +64,13 @@ public class UserServiceImpl implements UserService,  UserDetailsService {
 	@Override
 	public UserDTO getUserById(Long id) {
 		Optional<UserEntity> optional = userRepository.findById(id);
-		UserEntity user = null;
+
 		if (optional.isPresent()) {
-			user = optional.get();
+			UserEntity user = optional.get();
+			return convertToDTO(user);
 		} else {
 			throw new RuntimeException("Employee not found for id :: " + id);
 		}
-		return convertToDTO(user);
 	}
 
 	@Override
@@ -89,21 +81,25 @@ public class UserServiceImpl implements UserService,  UserDetailsService {
 		userEntity.setEncryptedPassword(userDTO.getEncryptedPassword());
 		userEntity.setRole(userDTO.getRole());
 		userEntity.setEnabled(userDTO.isEnabled());
+		userEntity.setEmail(userDTO.getEmail());
 		UserEntity user = this.userRepository.save(userEntity);
 		return convertToDTO(user);
 	}
 	
 	public UserDTO convertToDTO(UserEntity userEntity) {
-		if (userEntity == null) {
-			return null;
+		if (userEntity != null) {
+			UserDTO userDTO = new UserDTO();
+			userDTO.setUserId(userEntity.getUserId());
+			userDTO.setUserName(userEntity.getUserName());
+			userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
+			userDTO.setRole(userEntity.getRole());
+			userDTO.setEmail(userEntity.getEmail());
+			userDTO.setLocked(userEntity.isLocked());
+			userDTO.setEnabled(userEntity.isEnabled());
+			return userDTO;
 		}
-		UserDTO userDTO = new UserDTO();
-		userDTO.setUserId(userEntity.getUserId());
-		userDTO.setUserName(userEntity.getUserName());
-		userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
-		userDTO.setRole(userEntity.getRole());
-		userDTO.setEnabled(userEntity.isEnabled());
-		return userDTO;
+		else {
+			throw new RuntimeException("User entity null");
+		}
 	}
-	
 }

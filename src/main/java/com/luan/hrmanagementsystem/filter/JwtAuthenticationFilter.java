@@ -2,6 +2,7 @@ package com.luan.hrmanagementsystem.filter;
 
 import java.io.IOException;
 
+import com.luan.hrmanagementsystem.services.UserDetailsServiceImp;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,15 +22,14 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtService jwtService;
-	private final UserServiceImpl userService;
-	
-	public JwtAuthenticationFilter(JwtService jwtService, UserServiceImpl userService) {
-		super();
-		this.jwtService = jwtService;
-		this.userService = userService;
-	}
+	private final UserDetailsServiceImp userService;
 
-	@Override
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsServiceImp userService) {
+        this.jwtService = jwtService;
+        this.userService = userService;
+    }
+
+    @Override
 	protected void doFilterInternal(
 		@NonNull HttpServletRequest request, 
 		@NonNull HttpServletResponse response, 

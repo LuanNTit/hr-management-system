@@ -1,4 +1,4 @@
-package com.luan.hrmanagementsystem.security;
+package com.luan.hrmanagementsystem.config;
 
 import java.io.IOException;
 

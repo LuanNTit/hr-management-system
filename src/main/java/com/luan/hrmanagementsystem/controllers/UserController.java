@@ -1,26 +1,32 @@
 package com.luan.hrmanagementsystem.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.luan.hrmanagementsystem.dto.ResponseObject;
 import com.luan.hrmanagementsystem.dto.UserDTO;
-import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.services.UserService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
+@Tag(name = "user-MG-services")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-	private PasswordEncoder passwordEncoder;
-
+	private final PasswordEncoder passwordEncoder;
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> searchByName(@RequestParam String username) {
+        List<UserDTO> userSearchByUsernames = userService.searchUser(username);
+        return ResponseEntity.ok(new ResponseObject("ok", "List user search by user name successfully", userSearchByUsernames));
+    }
     @PostMapping("")
     public ResponseEntity<ResponseObject> createUser(@RequestBody UserDTO user) {
     	user.setEncryptedPassword(passwordEncoder.encode(user.getEncryptedPassword()));
@@ -29,11 +35,14 @@ public class UserController {
 				.body(new ResponseObject("ok", "User created successfully", createdUser));
     }
     
-    @GetMapping
-    public ResponseEntity<ResponseObject> getAllUsers() {
-    	List<UserDTO> users = userService.getAllUsers();
+    @GetMapping("")
+    public ResponseEntity<ResponseObject> getAllUsers(@RequestParam(defaultValue = "1") int page,
+                                                      @RequestParam(defaultValue = "5") int size,
+                                                      @RequestParam(defaultValue = "userName") String sortField,
+                                                      @RequestParam(defaultValue = "asc") String sortDirection) {
+    	Page<UserDTO> pagingUsers = userService.getAllUsers(page, size, sortField, sortDirection);
         return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseObject("ok", "List users successfully", users));
+				.body(new ResponseObject("ok", "List paging users successfully", pagingUsers));
     }
 
     @GetMapping("/{userId}")
@@ -49,11 +58,10 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody UserEntity updatedUser) {
-    	UserDTO user = userService.getUserById(userId);
-        UserDTO userUpdate = userService.saveUser(user);
+    public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
+        UserDTO updateUser = userService.updateUser(userId, userDTO);
         return ResponseEntity.status(HttpStatus.OK)
-				.body(new ResponseObject("ok", "Update Employee successfully", userUpdate));
+				.body(new ResponseObject("ok", "Update Employee successfully", updateUser));
     }
 
     @DeleteMapping("/{userId}")
@@ -62,6 +70,5 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
 				.body(new ResponseObject("ok", "Delete product successfully", ""));
     }
-    
 }
 

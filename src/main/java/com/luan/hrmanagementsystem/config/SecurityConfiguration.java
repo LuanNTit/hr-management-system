@@ -1,68 +1,103 @@
-package com.luan.hrmanagementsystem.security;
+package com.luan.hrmanagementsystem.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.luan.hrmanagementsystem.services.UserDetailsServiceImp;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.luan.hrmanagementsystem.filter.JwtAuthenticationFilter;
 import com.luan.hrmanagementsystem.services.UserServiceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-	@Autowired
-	private final UserServiceImpl userService;
+	private final UserDetailsServiceImp userDetailsServiceImp;
+
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	private final CustomLogoutHandler logoutHandler;
 
 	@Bean
 	public SecurityFilterChain securityChain(HttpSecurity httpSecurity) throws Exception {
-		return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
-			registry.requestMatchers("/home/**", "/login/**", "/register/**").permitAll();
-			registry.requestMatchers("/admin/**").hasRole("ADMIN");
-			registry.requestMatchers("/user/**").hasRole("USER");
-			registry.requestMatchers("/api/**").hasRole("ADMIN");
-			registry.anyRequest().authenticated();
-		}).userDetailsService(userService)
-//		.sessionManagement(session->session
-//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+		return httpSecurity
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(registry -> {
+					registry.requestMatchers("/home/**", "/login/**", "/register/**", "/forgot-password/**",
+								"/v2/api-docs",
+								"/v3/api-docs",
+								"/v3/api-docs/**",
+								"swagger-resources",
+								"/configuration/ui",
+								"/configuration/security",
+								"/swagger-ui/**",
+								"/webjars/**",
+								"/swagger-ui.html").permitAll();
+					registry.requestMatchers("/admin/**").hasRole("ADMIN");
+					registry.requestMatchers("/user/**").hasRole("USER");
+					registry.requestMatchers("/api/**").hasRole("ADMIN");
+					registry.requestMatchers("/lock/**").hasRole("ADMIN");
+					registry.anyRequest().authenticated();
+				})
+				.userDetailsService(userDetailsServiceImp)
+				.sessionManagement(session->session
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-				
+
 //				  .formLogin(httpSecurityFormLoginConfigurer -> {
 //				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
 //				  AuthenticationSuccessHandler()) .permitAll(); })
-				 
+
+				.exceptionHandling(
+						e->e.accessDeniedHandler(
+										(request, response, accessDeniedException)->response.setStatus(403)
+								)
+								.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+				.oauth2Login(Customizer.withDefaults())
+				.logout(l->l
+						.logoutUrl("/logout")
+						.addLogoutHandler(logoutHandler)
+						.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()
+						))
 				.build();
 	}
 
+
+
 	@Bean
 	public UserDetailsService userDetailsService() {
-		return userService;
+		return userDetailsServiceImp;
 	}
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userService);
+		provider.setUserDetailsService(userDetailsServiceImp);
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}

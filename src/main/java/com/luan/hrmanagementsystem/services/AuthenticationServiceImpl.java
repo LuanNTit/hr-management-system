@@ -1,5 +1,7 @@
 package com.luan.hrmanagementsystem.services;
 
+import com.luan.hrmanagementsystem.models.TokenEntity;
+import com.luan.hrmanagementsystem.repositories.TokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +13,10 @@ import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -18,17 +24,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
+	private final TokenRepository tokenRepository;
 
-	public AuthenticationResponse register(UserEntity request) {
-		request.setEnabled(true);
-		request.setEncryptedPassword(passwordEncoder.encode(request.getEncryptedPassword()));
-		UserEntity user = repository.save(request);
-		UserDTO userDTO = convertToDTO(user);
-		String token = jwtService.generateToken(userDTO);
-		return new AuthenticationResponse(token);
+	public AuthenticationResponse register(UserDTO request) {
+		UserEntity userEntity = convertToEntity(request);
+		userEntity.setEncryptedPassword(passwordEncoder.encode(request.getEncryptedPassword()));
+		UserEntity user = repository.save(userEntity);
+		String jwt = jwtService.generateToken(user);
+
+		saveUserToken(jwt, user);
+
+		return new AuthenticationResponse(jwt, "User registration was successful");
 	}
 	
-	public AuthenticationResponse authenticate(UserEntity request) {
+	public AuthenticationResponse authenticate(UserDTO request) {
 		authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(
 				request.getUserName(),
@@ -37,10 +46,68 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		);
 
 		UserEntity user = repository.findByUserName(request.getUserName()).orElseThrow();
-		UserDTO userDTO = convertToDTO(user);
-		String token = jwtService.generateToken(userDTO);
-		
-		return new AuthenticationResponse(token);
+		String token = jwtService.generateToken(user);
+		String jwt = jwtService.generateToken(user);
+
+		revokeAllTokenByUser(user);
+		saveUserToken(jwt, user);
+
+		return new AuthenticationResponse(jwt, "User login was successful");
+	}
+
+	@Override
+	public String lockUser(String username) {
+		Optional<UserEntity> findUser = repository.findByUserName(username);
+		if (findUser.isPresent()) {
+			UserEntity user = findUser.get();
+			user.setLocked(true);
+			repository.save(user);
+			return "Account '" + username + "' blocked.";
+		} else {
+			return "No account found with username '" + username + "'.";
+		}
+	}
+
+	@Override
+	public String processForgotPassword(String email) {
+		Optional<UserEntity> findUser = repository.findByEmail(email);
+		if (findUser.isPresent()) {
+			UserEntity user = findUser.get();
+			String newPassword = UUID.randomUUID().toString();
+			user.setEncryptedPassword(passwordEncoder.encode(newPassword));
+			repository.save(user);
+
+			// Send an email containing the new password
+			sendResetPasswordEmail(user.getEmail(), newPassword);
+			return "New password reset email sent " + newPassword + " to the address " + user.getEmail();
+		} else {
+			return "No account found with email '" + email + "'.";
+		}
+	}
+
+	@Override
+	public String sendResetPasswordEmail(String toEmail, String newPassword) {
+		return "New password reset email sent " + newPassword + " to the address " + toEmail;
+	}
+
+	private void revokeAllTokenByUser(UserEntity user) {
+		List<TokenEntity> validTokens = tokenRepository.findAllTokensByUser(user.getUserId());
+		if(validTokens.isEmpty()) {
+			return;
+		}
+
+		validTokens.forEach(t-> {
+			t.setLoggedOut(true);
+		});
+
+		tokenRepository.saveAll(validTokens);
+	}
+	private void saveUserToken(String jwt, UserEntity user) {
+		TokenEntity token = new TokenEntity();
+		token.setToken(jwt);
+		token.setLoggedOut(false);
+		token.setUser(user);
+		tokenRepository.save(token);
 	}
 	
 	public UserDTO convertToDTO(UserEntity userEntity) {
@@ -54,5 +121,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		userDTO.setUserName(userEntity.getUserName());
 		userDTO.setEnabled(userEntity.isEnabled());
 		return userDTO;
+	}
+	public UserEntity convertToEntity(UserDTO userDTO) {
+		if (userDTO == null) {
+			return null;
+		}
+		UserEntity userEntity = new UserEntity();
+		userEntity.setUserId(userDTO.getUserId());
+		userEntity.setEncryptedPassword(userDTO.getEncryptedPassword());
+		userEntity.setRole(userDTO.getRole());
+		userEntity.setUserName(userDTO.getUserName());
+		userEntity.setEnabled(userDTO.isEnabled());
+		return userEntity;
 	}
 }

@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,15 +13,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_db")
+@Table(name = "user")
 public class UserEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String userName;
     private String encryptedPassword;
     private boolean enabled;
+    private boolean locked;
+    private String email;
     private String role; //Eg: USER, ADMIN
 	public UserEntity(String userName, String encryptedPassword, String role, boolean enabled) {
 		super();

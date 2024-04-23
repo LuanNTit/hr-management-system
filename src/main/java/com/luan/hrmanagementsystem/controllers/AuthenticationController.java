@@ -1,36 +1,43 @@
 package com.luan.hrmanagementsystem.controllers;
 
+import com.luan.hrmanagementsystem.dto.UserDTO;
+import com.luan.hrmanagementsystem.services.AuthenticationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.luan.hrmanagementsystem.dto.AuthenticationResponse;
-import com.luan.hrmanagementsystem.models.UserEntity;
-import com.luan.hrmanagementsystem.services.AuthenticationServiceImpl;
 
 @RestController
+@RequiredArgsConstructor
+@Tag(name = "authentication-services")
 public class AuthenticationController {
-	private AuthenticationServiceImpl authService;
+	private final AuthenticationService authService;
 
-	public AuthenticationController(AuthenticationServiceImpl authService) {
-		super();
-		this.authService = authService;
-	}
-	
+
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> register(
-		@RequestBody UserEntity request
+			@RequestBody UserDTO request
 	) {
 		return ResponseEntity.ok(authService.register(request));
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthenticationResponse> login(
-		@RequestBody UserEntity request
+			@RequestBody UserDTO request
 	) {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
 
-	
+	@PostMapping("/lock")
+	public ResponseEntity<String> lockUser(@RequestParam("username") String username) {
+		return ResponseEntity.ok(authService.lockUser(username));
+	}
+
+	@PostMapping("/forgot-password")
+	public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+		return ResponseEntity.ok(authService.processForgotPassword(email));
+	}
 }
