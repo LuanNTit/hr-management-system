@@ -1,6 +1,7 @@
 package com.luan.hrmanagementsystem.services;
 
-import com.luan.hrmanagementsystem.dto.TokenUserDTO;
+import com.luan.hrmanagementsystem.dto.TokenDTO;
+import com.luan.hrmanagementsystem.mapper.TokenMapper;
 import com.luan.hrmanagementsystem.mapper.UserMapper;
 import com.luan.hrmanagementsystem.models.TokenEntity;
 import com.luan.hrmanagementsystem.repositories.TokenRepository;
@@ -32,6 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private TokenRepository tokenRepository;
 	@Autowired
 	private UserMapper userMapper;
+	private TokenMapper tokenMapper;
 
 	public AuthenticationResponse register(UserDTO request) {
 		UserEntity userEntity = userMapper.mapToUserEntity(request);
@@ -98,8 +100,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public List<TokenUserDTO> viewActiveAccounts() {
-		return List.of();
+	public List<TokenDTO> viewActiveAccounts() {
+		return tokenMapper.mapToTokenDTOs(tokenRepository.findAllByIsLoggedOutFalse());
 	}
 
 	private void revokeAllTokenByUser(UserEntity user) {

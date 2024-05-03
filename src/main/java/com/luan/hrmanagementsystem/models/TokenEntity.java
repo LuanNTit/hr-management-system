@@ -17,9 +17,12 @@ public class TokenEntity {
 
     @Column(name = "is_logged_out")
     private boolean loggedOut;
+    @Column(name = "username")
+    private String username;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
 }
 

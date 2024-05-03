@@ -1,6 +1,5 @@
 package com.luan.hrmanagementsystem.repositories;
 
-import com.luan.hrmanagementsystem.dto.TokenUserDTO;
 import com.luan.hrmanagementsystem.models.TokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +14,10 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
         """)
     List<TokenEntity> findAllTokensByUser(Long userId);
     Optional<TokenEntity> findByToken(String token);
+    @Query("""
+        select t from TokenEntity t inner join UserEntity u on t.user.userId = u.userId
+        where t.loggedOut = false
+        """)
+    List<TokenEntity> findAllByIsLoggedOutFalse();
 }
 
