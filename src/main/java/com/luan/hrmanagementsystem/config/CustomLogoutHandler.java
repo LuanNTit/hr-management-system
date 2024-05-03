@@ -10,13 +10,11 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 @Configuration
 public class CustomLogoutHandler implements LogoutHandler {
-
     private final TokenRepository tokenRepository;
 
     public CustomLogoutHandler(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
     }
-
     @Override
     public void logout(HttpServletRequest request,
                        HttpServletResponse response,
@@ -26,10 +24,8 @@ public class CustomLogoutHandler implements LogoutHandler {
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
-
         String token = authHeader.substring(7);
         TokenEntity storedToken = tokenRepository.findByToken(token).orElse(null);
-
         if(storedToken != null) {
             storedToken.setLoggedOut(true);
             tokenRepository.save(storedToken);

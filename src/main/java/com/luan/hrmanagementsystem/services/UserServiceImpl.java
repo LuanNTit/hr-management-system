@@ -2,12 +2,11 @@ package com.luan.hrmanagementsystem.services;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
+
+import com.luan.hrmanagementsystem.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.luan.hrmanagementsystem.dto.UserDTO;
@@ -15,11 +14,11 @@ import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	private final UserRepository userRepository;
-
-	@Override
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private UserMapper userMapper;
 	public void deleteUserById(Long id) {
 		this.userRepository.deleteById(id);
 	}
@@ -29,14 +28,9 @@ public class UserServiceImpl implements UserService {
 		// find employee by id
 		Optional<UserEntity> findUser = this.userRepository.findById(id);
 		if (findUser.isPresent()) {
-			UserEntity updateUserEntity = findUser.get();
-			updateUserEntity.setUserName(user.getUserName());
-			updateUserEntity.setEmail(user.getEmail());
-			updateUserEntity.setRole(user.getRole());
-			updateUserEntity.setLocked(user.isLocked());
-			updateUserEntity.setEnabled(user.isEnabled());
-			updateUserEntity.setEncryptedPassword(user.getEncryptedPassword());
-			return convertToDTO(this.userRepository.save(updateUserEntity));
+			UserEntity updateUserEntity = userMapper.mapToUserEntity(user);
+			updateUserEntity.setUserId(id);
+			return userMapper.mapToUserDTO(this.userRepository.save(updateUserEntity));
 		}
 		return null;
 	}
@@ -44,7 +38,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<UserDTO> searchUser(String username) {
 		List<UserEntity> userByUserNames = userRepository.findByUserNameContaining(username);
-		return userByUserNames.stream().map(this::convertToDTO).collect(Collectors.toList());
+		return userMapper.mapToUserDTOs(userByUserNames);
 	}
 
 	@Override
@@ -52,13 +46,13 @@ public class UserServiceImpl implements UserService {
 		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
 				Sort.by(sortField).descending();
 		Page<UserEntity> pageEmployeeEntity = userRepository.findAllBy(PageRequest.of(page - 1, size, sort));
-		return pageEmployeeEntity.map(this::convertToDTO);
+		return pageEmployeeEntity.map(userMapper::mapToUserDTO);
 	}
 
 	@Override
 	public List<UserDTO> getAllUsers() {
 		List<UserEntity> users = userRepository.findAll();
-		return users.stream().map(this::convertToDTO).collect(Collectors.toList());
+		return userMapper.mapToUserDTOs(users);
 	}
 
 	@Override
@@ -67,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
 		if (optional.isPresent()) {
 			UserEntity user = optional.get();
-			return convertToDTO(user);
+			return userMapper.mapToUserDTO(user);
 		} else {
 			throw new RuntimeException("Employee not found for id :: " + id);
 		}
@@ -75,31 +69,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO saveUser(UserDTO userDTO) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setUserId(userDTO.getUserId());
-		userEntity.setUserName(userDTO.getUserName());
+		UserEntity userEntity = userMapper.mapToUserEntity(userDTO);
 		userEntity.setEncryptedPassword(userDTO.getEncryptedPassword());
-		userEntity.setRole(userDTO.getRole());
-		userEntity.setEnabled(userDTO.isEnabled());
-		userEntity.setEmail(userDTO.getEmail());
 		UserEntity user = this.userRepository.save(userEntity);
-		return convertToDTO(user);
-	}
-	
-	public UserDTO convertToDTO(UserEntity userEntity) {
-		if (userEntity != null) {
-			UserDTO userDTO = new UserDTO();
-			userDTO.setUserId(userEntity.getUserId());
-			userDTO.setUserName(userEntity.getUserName());
-			userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
-			userDTO.setRole(userEntity.getRole());
-			userDTO.setEmail(userEntity.getEmail());
-			userDTO.setLocked(userEntity.isLocked());
-			userDTO.setEnabled(userEntity.isEnabled());
-			return userDTO;
-		}
-		else {
-			throw new RuntimeException("User entity null");
-		}
+		return userMapper.mapToUserDTO(user);
 	}
 }

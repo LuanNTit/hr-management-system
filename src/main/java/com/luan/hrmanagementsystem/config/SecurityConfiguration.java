@@ -1,17 +1,12 @@
 package com.luan.hrmanagementsystem.config;
 
 import com.luan.hrmanagementsystem.services.UserDetailsServiceImp;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,12 +21,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.luan.hrmanagementsystem.filter.JwtAuthenticationFilter;
-import com.luan.hrmanagementsystem.services.UserServiceImpl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -68,17 +59,11 @@ public class SecurityConfiguration {
 				.sessionManagement(session->session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
-//				  .formLogin(httpSecurityFormLoginConfigurer -> {
-//				  httpSecurityFormLoginConfigurer .loginPage("/login") .successHandler(new
-//				  AuthenticationSuccessHandler()) .permitAll(); })
-
 				.exceptionHandling(
 						e->e.accessDeniedHandler(
 										(request, response, accessDeniedException)->response.setStatus(403)
 								)
 								.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-				.oauth2Login(Customizer.withDefaults())
 				.logout(l->l
 						.logoutUrl("/logout")
 						.addLogoutHandler(logoutHandler)

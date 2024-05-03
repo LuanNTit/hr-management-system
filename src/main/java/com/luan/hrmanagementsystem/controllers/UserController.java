@@ -59,6 +59,7 @@ public class UserController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<ResponseObject> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
+        userDTO.setEncryptedPassword(passwordEncoder.encode(userDTO.getEncryptedPassword()));
         UserDTO updateUser = userService.updateUser(userId, userDTO);
         return ResponseEntity.status(HttpStatus.OK)
 				.body(new ResponseObject("ok", "Update Employee successfully", updateUser));

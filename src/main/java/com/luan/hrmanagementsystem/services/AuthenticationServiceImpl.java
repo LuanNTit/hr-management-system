@@ -1,7 +1,10 @@
 package com.luan.hrmanagementsystem.services;
 
+import com.luan.hrmanagementsystem.dto.TokenUserDTO;
+import com.luan.hrmanagementsystem.mapper.UserMapper;
 import com.luan.hrmanagementsystem.models.TokenEntity;
 import com.luan.hrmanagementsystem.repositories.TokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,23 +14,27 @@ import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-	private final UserRepository repository;
-	private final PasswordEncoder passwordEncoder;
-	private final JwtService jwtService;
-	private final AuthenticationManager authenticationManager;
-	private final TokenRepository tokenRepository;
+	@Autowired
+	private UserRepository repository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private JwtService jwtService;
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@Autowired
+	private TokenRepository tokenRepository;
+	@Autowired
+	private UserMapper userMapper;
 
 	public AuthenticationResponse register(UserDTO request) {
-		UserEntity userEntity = convertToEntity(request);
+		UserEntity userEntity = userMapper.mapToUserEntity(request);
 		userEntity.setEncryptedPassword(passwordEncoder.encode(request.getEncryptedPassword()));
 		UserEntity user = repository.save(userEntity);
 		String jwt = jwtService.generateToken(user);
@@ -46,7 +53,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		);
 
 		UserEntity user = repository.findByUserName(request.getUserName()).orElseThrow();
-		String token = jwtService.generateToken(user);
 		String jwt = jwtService.generateToken(user);
 
 		revokeAllTokenByUser(user);
@@ -73,6 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Optional<UserEntity> findUser = repository.findByEmail(email);
 		if (findUser.isPresent()) {
 			UserEntity user = findUser.get();
+			// Generate a new random password
 			String newPassword = UUID.randomUUID().toString();
 			user.setEncryptedPassword(passwordEncoder.encode(newPassword));
 			repository.save(user);
@@ -86,8 +93,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public String sendResetPasswordEmail(String toEmail, String newPassword) {
-		return "New password reset email sent " + newPassword + " to the address " + toEmail;
+	public void sendResetPasswordEmail(String toEmail, String newPassword) {
+		System.out.println("New password reset email sent " + newPassword + " to the address " + toEmail);
+	}
+
+	@Override
+	public List<TokenUserDTO> viewActiveAccounts() {
+		return List.of();
 	}
 
 	private void revokeAllTokenByUser(UserEntity user) {
@@ -109,29 +121,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		token.setUser(user);
 		tokenRepository.save(token);
 	}
-	
-	public UserDTO convertToDTO(UserEntity userEntity) {
-		if (userEntity == null) {
-			return null;
-		}
-		UserDTO userDTO = new UserDTO();
-		userDTO.setUserId(userEntity.getUserId());
-		userDTO.setEncryptedPassword(userEntity.getEncryptedPassword());
-		userDTO.setRole(userEntity.getRole());
-		userDTO.setUserName(userEntity.getUserName());
-		userDTO.setEnabled(userEntity.isEnabled());
-		return userDTO;
-	}
-	public UserEntity convertToEntity(UserDTO userDTO) {
-		if (userDTO == null) {
-			return null;
-		}
-		UserEntity userEntity = new UserEntity();
-		userEntity.setUserId(userDTO.getUserId());
-		userEntity.setEncryptedPassword(userDTO.getEncryptedPassword());
-		userEntity.setRole(userDTO.getRole());
-		userEntity.setUserName(userDTO.getUserName());
-		userEntity.setEnabled(userDTO.isEnabled());
-		return userEntity;
-	}
+
+
 }
