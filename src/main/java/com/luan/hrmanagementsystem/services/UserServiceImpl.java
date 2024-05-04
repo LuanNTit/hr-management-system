@@ -3,17 +3,19 @@ package com.luan.hrmanagementsystem.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.luan.hrmanagementsystem.exception.DuplicateRecordException;
+import com.luan.hrmanagementsystem.exception.NotFoundException;
 import com.luan.hrmanagementsystem.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import com.luan.hrmanagementsystem.dto.UserDTO;
 import com.luan.hrmanagementsystem.models.UserEntity;
 import com.luan.hrmanagementsystem.repositories.UserRepository;
 
-@Service
+@Component
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
@@ -29,6 +31,9 @@ public class UserServiceImpl implements UserService {
 		Optional<UserEntity> findUser = this.userRepository.findById(id);
 		if (findUser.isPresent()) {
 			UserEntity updateUserEntity = userMapper.mapToUserEntity(user);
+			if (updateUserEntity.getUserName().equals(findUser.get().getUserName())) {
+				throw new DuplicateRecordException("User already exists in the system");
+			}
 			updateUserEntity.setUserId(id);
 			return userMapper.mapToUserDTO(this.userRepository.save(updateUserEntity));
 		}
@@ -62,9 +67,8 @@ public class UserServiceImpl implements UserService {
 		if (optional.isPresent()) {
 			UserEntity user = optional.get();
 			return userMapper.mapToUserDTO(user);
-		} else {
-			throw new RuntimeException("Employee not found for id :: " + id);
 		}
+		throw new NotFoundException("Employee not found for id : " + id);
 	}
 
 	@Override

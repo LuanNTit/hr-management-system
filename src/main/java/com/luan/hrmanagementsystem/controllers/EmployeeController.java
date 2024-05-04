@@ -51,14 +51,9 @@ public class EmployeeController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<ResponseObject> getEmployeeById(@PathVariable Long id) {
-		try {
-			EmployeeDTO employee = employeeService.getEmployeeById(id);
-			return ResponseEntity.status(HttpStatus.OK)
-					.body(new ResponseObject("ok", "Query employee successfully", employee));
-		} catch (Exception exception) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(new ResponseObject("failed", exception.getMessage(), ""));
-		}
+		EmployeeDTO employee = employeeService.getEmployeeById(id);
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(new ResponseObject("ok", "Query employee successfully", employee));
 	}
 
 	@PostMapping("")

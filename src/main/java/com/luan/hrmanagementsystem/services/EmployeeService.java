@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.luan.hrmanagementsystem.dto.EmployeeDTO;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface EmployeeService {
 	List<EmployeeDTO> getAllEmployees();
 	EmployeeDTO saveEmployee(EmployeeDTO employee);

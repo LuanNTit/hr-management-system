@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.luan.hrmanagementsystem.dto.AuthenticationResponse;
 import com.luan.hrmanagementsystem.dto.UserDTO;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
+@Component
 public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserRepository repository;

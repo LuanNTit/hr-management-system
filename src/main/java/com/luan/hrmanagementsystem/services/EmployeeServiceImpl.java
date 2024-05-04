@@ -9,8 +9,11 @@ import java.util.Optional;
 import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
+import com.luan.hrmanagementsystem.exception.DuplicateRecordException;
+import com.luan.hrmanagementsystem.exception.NotFoundException;
 import com.luan.hrmanagementsystem.mapper.EmployeeMapper;
 import com.luan.hrmanagementsystem.mapper.UserMapper;
+import javassist.bytecode.DuplicateMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,12 +21,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.luan.hrmanagementsystem.dto.EmployeeDTO;
 import com.luan.hrmanagementsystem.models.EmployeeEntity;
 import com.luan.hrmanagementsystem.repositories.EmployeeRepository;
-@Service
+@Component
 public class EmployeeServiceImpl implements EmployeeService {
 	@Autowired
 	private EmployeeRepository employeeRepository;
@@ -42,10 +46,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if (optional.isPresent()) {
 			EmployeeEntity employee = optional.get();
 			return employeeMapper.mapToEmployeeDTO(employee);
-		} else {
-			throw new RuntimeException("Employee not found for id :: " + id);
 		}
-
+		throw new NotFoundException("Employee not found for id : " + id);
 	}
 
 	@Override

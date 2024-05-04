@@ -1,4 +1,7 @@
 package com.luan.hrmanagementsystem.services;
 
-public class UploadServiceImpl {
+import org.springframework.stereotype.Component;
+
+@Component
+public class UploadServiceImpl{
 }
